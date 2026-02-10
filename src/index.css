@@ -1,0 +1,588 @@
+/* Font Family Imports - Must be at the top */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap&subset=arabic');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap&subset=arabic');
+
+@import "tailwindcss";
+
+@layer base {
+:root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    --font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif;
+}
+
+.dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+  
+  /* Ensure CSS variables are applied to all elements */
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  /* Force primary color to be applied - Use CSS custom properties */
+  .bg-primary,
+  [class*="bg-primary"] {
+    background-color: hsl(var(--primary)) !important;
+  }
+  
+  .text-primary,
+  [class*="text-primary"]:not([class*="text-primary-foreground"]) {
+    color: hsl(var(--primary)) !important;
+  }
+  
+  .text-primary-foreground,
+  [class*="text-primary-foreground"] {
+    color: hsl(var(--primary-foreground)) !important;
+  }
+  
+  /* Ensure all text is visible - Force foreground colors */
+  body,
+  p,
+  span,
+  div,
+  h1, h2, h3, h4, h5, h6,
+  label,
+  input,
+  textarea,
+  select,
+  button {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Ensure text on cards is visible */
+  .card,
+  [class*="card"] {
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* Ensure text in muted areas is visible but subtle */
+  .text-muted-foreground,
+  [class*="text-muted"] {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  
+  /* Ensure text on primary backgrounds is visible */
+  .bg-primary,
+  [class*="bg-primary"] {
+    color: hsl(var(--primary-foreground)) !important;
+  }
+  
+  .bg-primary *,
+  [class*="bg-primary"] * {
+    color: hsl(var(--primary-foreground)) !important;
+  }
+  
+  /* Ensure text on secondary backgrounds is visible */
+  .bg-secondary,
+  [class*="bg-secondary"] {
+    color: hsl(var(--secondary-foreground)) !important;
+  }
+  
+  /* Ensure text on accent backgrounds is visible */
+  .bg-accent,
+  [class*="bg-accent"] {
+    color: hsl(var(--accent-foreground)) !important;
+  }
+  
+  /* Ensure destructive text is visible */
+  .text-destructive,
+  [class*="text-destructive"] {
+    color: hsl(var(--destructive-foreground)) !important;
+  }
+  
+  /* Override hardcoded colors that might conflict with theme */
+  .dark .text-white,
+  .dark [class*="text-white"] {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  .light .text-black,
+  .light [class*="text-black"] {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Ensure status colors work in both themes */
+  .dark .text-green-600,
+  .dark .text-green-500,
+  .dark .text-green-700 {
+    color: hsl(142 70% 60%) !important;
+  }
+  
+  .dark .text-red-600,
+  .dark .text-red-500,
+  .dark .text-red-700 {
+    color: hsl(0 70% 60%) !important;
+  }
+  
+  .dark .text-blue-600,
+  .dark .text-blue-500,
+  .dark .text-blue-700 {
+    color: hsl(217 90% 65%) !important;
+  }
+  
+  .dark .text-yellow-600,
+  .dark .text-yellow-500,
+  .dark .text-yellow-700 {
+    color: hsl(45 90% 60%) !important;
+  }
+  
+  .dark .text-orange-600,
+  .dark .text-orange-500,
+  .dark .text-orange-700 {
+    color: hsl(25 90% 60%) !important;
+  }
+  
+  .dark .text-purple-600,
+  .dark .text-purple-500,
+  .dark .text-purple-700 {
+    color: hsl(262 80% 70%) !important;
+  }
+  
+  .dark .text-pink-600,
+  .dark .text-pink-500,
+  .dark .text-pink-700 {
+    color: hsl(330 75% 70%) !important;
+  }
+  
+  /* Ensure background colors with text are visible */
+  .dark .bg-green-100,
+  .dark [class*="bg-green-100"] {
+    background-color: hsl(142 50% 20%) !important;
+  }
+  
+  .dark .bg-green-100 .text-green-800,
+  .dark [class*="bg-green-100"] [class*="text-green-800"] {
+    color: hsl(142 70% 70%) !important;
+  }
+  
+  .dark .bg-red-100,
+  .dark [class*="bg-red-100"] {
+    background-color: hsl(0 50% 20%) !important;
+  }
+  
+  .dark .bg-red-100 .text-red-800,
+  .dark [class*="bg-red-100"] [class*="text-red-800"] {
+    color: hsl(0 70% 70%) !important;
+  }
+  
+  .dark .bg-blue-100,
+  .dark [class*="bg-blue-100"] {
+    background-color: hsl(217 50% 20%) !important;
+  }
+  
+  .dark .bg-blue-100 .text-blue-800,
+  .dark [class*="bg-blue-100"] [class*="text-blue-800"] {
+    color: hsl(217 80% 70%) !important;
+  }
+  
+  .dark .bg-yellow-100,
+  .dark [class*="bg-yellow-100"] {
+    background-color: hsl(45 50% 20%) !important;
+  }
+  
+  .dark .bg-yellow-100 .text-yellow-800,
+  .dark [class*="bg-yellow-100"] [class*="text-yellow-800"] {
+    color: hsl(45 80% 70%) !important;
+  }
+  
+  .dark .bg-gray-100,
+  .dark [class*="bg-gray-100"] {
+    background-color: hsl(217 20% 20%) !important;
+  }
+  
+  .dark .bg-gray-100 .text-gray-800,
+  .dark [class*="bg-gray-100"] [class*="text-gray-800"] {
+    color: hsl(217 20% 80%) !important;
+  }
+  
+  /* Dropdowns and Modals - Ensure backgrounds and colors are visible */
+  [class*="dropdown"],
+  [class*="Dropdown"],
+  .dropdown,
+  .dropdown-menu,
+  .dropdown-content {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  /* Modal/Dialog backgrounds */
+  [class*="modal"],
+  [class*="Modal"],
+  [class*="dialog"],
+  [class*="Dialog"],
+  .modal,
+  .dialog {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* Modal/Dialog overlays/backdrops */
+  [class*="overlay"],
+  [class*="Overlay"],
+  [class*="backdrop"],
+  [class*="Backdrop"],
+  .overlay,
+  .backdrop {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  /* Ensure all bg-card variations have solid backgrounds */
+  .bg-card,
+  [class*="bg-card"] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* Fix transparent backgrounds */
+  .bg-card\/50,
+  .bg-card\/80,
+  .bg-card\/95 {
+    background-color: hsl(var(--card) / 0.95) !important;
+  }
+  
+  .dark .bg-card\/50,
+  .dark .bg-card\/80,
+  .dark .bg-card\/95 {
+    background-color: hsl(var(--card) / 0.95) !important;
+  }
+  
+  /* Popover backgrounds */
+  [class*="popover"],
+  [class*="Popover"],
+  .popover {
+    background-color: hsl(var(--popover)) !important;
+    color: hsl(var(--popover-foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  /* Select dropdown backgrounds */
+  select,
+  [role="listbox"],
+  [role="menu"],
+  [role="menuitem"],
+  option {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Select element styling */
+  select {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--input)) !important;
+  }
+  
+  select:focus {
+    border-color: hsl(var(--ring)) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+  }
+  
+  /* Option elements in select */
+  option {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  option:hover,
+  option:focus,
+  option:checked {
+    background-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+  }
+  
+  /* Ensure dropdown items have proper backgrounds on hover */
+  [role="menuitem"]:hover,
+  [role="option"]:hover,
+  .dropdown-item:hover,
+  [class*="dropdown-item"]:hover {
+    background-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+  }
+  
+  /* Fix any element with absolute positioning that might be transparent */
+  [class*="absolute"][class*="bg-"],
+  [class*="fixed"][class*="bg-"] {
+    background-color: hsl(var(--card)) !important;
+  }
+  
+  /* Ensure z-50 elements (dropdowns/modals) have proper backgrounds */
+  /* But exclude modal overlays - they should be transparent */
+  [class*="z-50"]:not([class*="inset-0"]):not([class*="fixed"]),
+  [class*="z-40"]:not([class*="inset-0"]):not([class*="fixed"]),
+  [class*="z-[101]"] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* Modal overlays should be transparent black */
+  [class*="z-[100]"][class*="inset-0"],
+  [class*="z-[100]"][class*="fixed"] {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  /* Modal content should have solid background */
+  [class*="z-[101]"] {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground)) !important;
+  }
+  
+  /* Table styling - Ensure text is always visible */
+  table,
+  thead,
+  tbody,
+  tfoot,
+  tr,
+  th,
+  td {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Table header text */
+  th,
+  [class*="TableHead"],
+  thead th,
+  thead td {
+    color: hsl(var(--muted-foreground)) !important;
+    background-color: hsl(var(--muted) / 0.5) !important;
+  }
+  
+  /* Table body text */
+  tbody td,
+  tbody th,
+  [class*="TableCell"] {
+    color: hsl(var(--foreground)) !important;
+    background-color: transparent !important;
+  }
+  
+  /* Table row hover */
+  tbody tr:hover,
+  [class*="TableRow"]:hover {
+    background-color: hsl(var(--muted) / 0.3) !important;
+  }
+  
+  tbody tr:hover td,
+  tbody tr:hover th,
+  [class*="TableRow"]:hover [class*="TableCell"] {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Table borders */
+  table,
+  th,
+  td {
+    border-color: hsl(var(--border)) !important;
+  }
+  
+  /* Ensure table content is visible */
+  [class*="DataTable"],
+  [class*="data-table"],
+  .data-table {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  [class*="DataTable"] *,
+  [class*="data-table"] *,
+  .data-table * {
+    color: inherit !important;
+  }
+  
+  /* Override any text color issues in tables */
+  table *,
+  [class*="Table"] * {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Table header specific */
+  thead *,
+  [class*="TableHeader"] *,
+  [class*="TableHead"] {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  
+  /* Table cell content */
+  td *,
+  th *,
+  [class*="TableCell"] * {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Ensure buttons and links in tables are visible */
+  table button,
+  table a,
+  table [class*="Button"],
+  [class*="Table"] button,
+  [class*="Table"] a {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Status badges in tables */
+  table [class*="bg-"],
+  [class*="Table"] [class*="bg-"] {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Icons in tables */
+  table svg,
+  table [class*="Icon"],
+  [class*="Table"] svg,
+  [class*="Table"] [class*="Icon"] {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* Fix backdrop-blur elements */
+  [class*="backdrop-blur"] {
+    background-color: hsl(var(--card) / 0.95) !important;
+  }
+  
+  .border-primary,
+  [class*="border-primary"] {
+    border-color: hsl(var(--primary)) !important;
+  }
+  
+  .from-primary,
+  [class*="from-primary"] {
+    --tw-gradient-from: hsl(var(--primary)) !important;
+  }
+  
+  .to-primary,
+  [class*="to-primary"] {
+    --tw-gradient-to: hsl(var(--primary)) !important;
+  }
+  
+  /* Sidebar text colors */
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  
+  .text-accent-foreground {
+    color: hsl(var(--accent-foreground)) !important;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Tajawal', 'Cairo', var(--font-family), system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  * {
+    font-family: 'Tajawal', 'Cairo', var(--font-family), system-ui, -apple-system, sans-serif;
+    border-color: hsl(var(--border));
+  }
+  
+  /* Ensure Tajawal font is applied globally */
+  html, body, #root {
+    font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif !important;
+  }
+}
+
+@layer utilities {
+  /* Sidebar Styles */
+  .sidebar-minimal .sidebar-nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .sidebar-compact .sidebar-nav-link {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .sidebar-compact .sidebar-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .sidebar-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--card)) 100%);
+  }
+}
+
+/* Leaflet Map Styles */
+.leaflet-container {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border-radius: 8px;
+}
+
+.leaflet-popup-tip {
+  background-color: hsl(var(--card)) !important;
+}
+
+.leaflet-control {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Custom Marker Animation */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
