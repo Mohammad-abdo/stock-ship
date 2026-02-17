@@ -31,7 +31,9 @@ const ViewDeal = () => {
   const [selectedShippingCompanyId, setSelectedShippingCompanyId] = useState('');
   const [shippingTracking, setShippingTracking] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [activeTab, setActiveTab] = useState('details');
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesError, setMessagesError] = useState(null);
+  const [activeTab, setActiveTab] = useState('negotiation');
   const [productState, setProductState] = useState([]);
 
   useEffect(() => {
@@ -141,18 +143,20 @@ const ViewDeal = () => {
   };
 
   const fetchMessages = async () => {
+    if (!id) return;
     try {
-      const res = await negotiationApi.getMessages(id);
-      const raw = res.data;
-      // Backend returns { data: [...], pagination: {...} for GET /deals/:id/negotiations
-      const list = Array.isArray(raw?.data) ? raw.data : (Array.isArray(raw) ? raw : []);
-      if (list.length > 0) {
-        setMessages(list.map((m) => ({ ...m, content: m.message ?? m.content ?? '' })));
-      }
-      // If list is empty, keep existing messages from deal (don't overwrite)
+      setMessagesLoading(true);
+      setMessagesError(null);
+      const res = await negotiationApi.getMessages(id, { limit: 100 });
+      const list = res.data?.data ?? res.data ?? [];
+      setMessages(Array.isArray(list) ? list : []);
     } catch (err) {
-      console.error("Error fetching negotiation messages:", err);
-      // Keep existing messages from deal on error
+      console.error("Error fetching messages:", err);
+      setMessages([]);
+      const msg = err.response?.data?.message || err.message;
+      setMessagesError(msg || (t('mediation.deals.messagesLoadFailed') || 'تعذر تحميل الرسائل'));
+    } finally {
+      setMessagesLoading(false);
     }
   };
 
@@ -332,7 +336,21 @@ const ViewDeal = () => {
 
           {/* Messages Area */}
           <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
-            {messages.length === 0 ? (
+            {messagesLoading ? (
+              <div className="text-center text-gray-500 py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-500 border-t-transparent mx-auto mb-3" />
+                <p>{t('common.loading') || 'جاري تحميل الرسائل...'}</p>
+              </div>
+            ) : messagesError ? (
+              <div className="text-center py-8">
+                <AlertCircle className="w-12 h-12 mx-auto mb-2 text-amber-500" />
+                <p className="text-gray-700 font-medium">{t('mediation.deals.messagesLoadFailed') || 'تعذر تحميل الرسائل'}</p>
+                <p className="text-sm text-gray-500 mt-1">{messagesError}</p>
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => fetchMessages()}>
+                  {t('common.retry') || 'إعادة المحاولة'}
+                </Button>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="text-center text-gray-400 py-8">
                 <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>{t('mediation.deals.noMessagesEmployee') || 'لا توجد رسائل تفاوض بعد بين العميل والتاجر.'}</p>
@@ -762,6 +780,70 @@ const ViewDeal = () => {
                   <p className="font-medium text-gray-900">{deal.totalCartons || 'N/A'}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Negotiation messages preview */}
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-gray-600" />
+                  {t('mediation.deals.negotiations') || 'رسائل التفاوض'}
+                  {messages.length > 0 && (
+                    <span className="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-full font-normal">
+                      {messages.length}
+                    </span>
+                  )}
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('negotiation')}
+                  className="gap-1"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {t('mediation.deals.viewAllMessages') || 'عرض كل الرسائل'}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {messagesLoading ? (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  {t('common.loading') || 'جاري التحميل...'}
+                </div>
+              ) : messages.length === 0 ? (
+                <p className="text-sm text-gray-500 py-2">
+                  {t('mediation.deals.noMessagesEmployee') || 'لا توجد رسائل تفاوض بعد.'}
+                </p>
+              ) : (
+                <div className="space-y-3 max-h-[280px] overflow-y-auto">
+                  {messages.slice(-5).map((msg, idx) => {
+                    const content = msg.content || msg.message || '';
+                    const isFromClient = msg.senderType === 'CLIENT';
+                    const isFromEmployee = msg.senderType === 'EMPLOYEE';
+                    const senderLabel = isFromClient ? (t('mediation.deals.client') || 'العميل') : isFromEmployee ? (t('mediation.deals.employee') || 'الموظف') : (t('mediation.deals.trader') || 'التاجر');
+                    return (
+                      <div key={msg.id || idx} className="p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-xs font-medium text-gray-700">{senderLabel}</span>
+                          <span className="text-xs text-gray-500">
+                            {msg.createdAt ? new Date(msg.createdAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap line-clamp-2">{content || '—'}</p>
+                        {(msg.proposedPrice != null || msg.proposedQuantity != null) && (
+                          <div className="mt-1 text-xs text-gray-600">
+                            {msg.proposedPrice != null && <span>{t('mediation.deals.negotiationForm.proposedPrice') || 'السعر'}: {Number(msg.proposedPrice).toFixed(2)}</span>}
+                            {msg.proposedPrice != null && msg.proposedQuantity != null && ' · '}
+                            {msg.proposedQuantity != null && <span>{t('mediation.deals.negotiationForm.proposedQuantity') || 'الكمية'}: {msg.proposedQuantity}</span>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
