@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { adminApi } from '@/lib/stockshipApi';
 import StandardDataTable from '@/components/StandardDataTable';
 import { motion } from 'framer-motion';
-import { Eye, Edit, Trash2, CheckCircle, XCircle, Ban, Check, Store, Mail, Phone, MapPin, Package, ShoppingCart, Briefcase, QrCode } from 'lucide-react';
+import { Eye, Edit, Trash2, CheckCircle, XCircle, Ban, Check, Store, Mail, Phone, MapPin, Package, ShoppingCart, Briefcase, QrCode, Plus } from 'lucide-react';
 import showToast from '@/lib/toast';
 
 const AdminTraders = () => {
@@ -314,6 +314,14 @@ const AdminTraders = () => {
           <h1 className="text-2xl font-semibold text-gray-900">{t('mediation.traders.title')}</h1>
           <p className="text-sm text-gray-600 mt-1">{t('mediation.traders.subtitle')}</p>
         </div>
+        <button
+          type="button"
+          onClick={() => navigate('/stockship/admin/traders/create')}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          {t('mediation.traders.addTrader') || 'Add Trader'}
+        </button>
       </div>
 
       {/* Filters */}

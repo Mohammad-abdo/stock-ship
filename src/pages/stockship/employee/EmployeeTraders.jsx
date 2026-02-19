@@ -141,7 +141,7 @@ export default function EmployeeTraders() {
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
           value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
         }`}>
-          {value ? (t('mediation.common.active') || 'Active') : (t('mediation.common.inactive') || 'Inactive')}
+          {value ? t('mediation.common.active') : t('mediation.common.inactive')}
         </span>
       )
     },
@@ -236,7 +236,7 @@ export default function EmployeeTraders() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/stockship/employee/traders/create')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           {t('mediation.employee.registerTrader') || 'Register New Trader'}

@@ -49,7 +49,7 @@ export default function StockshipModeratorLayout({ children }) {
     <div 
       className="flex h-screen bg-gray-50 overflow-hidden"
       dir={isRTL ? 'rtl' : 'ltr'}
-      style={{ fontFamily: 'Tajawal, sans-serif' }}
+      style={{ fontFamily: "'Alexandria', sans-serif" }}
     >
       {/* Glassmorphism Sidebar */}
       <aside

@@ -153,15 +153,15 @@ const ViewCategory = () => {
           <CardContent>
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-500">Is Active</label>
+                <label className="text-sm font-medium text-gray-500">{t('mediation.categories.isActive') || 'Is Active'}</label>
                 <p className="text-lg font-semibold mt-1">
-                  {category.isActive ? 'Yes' : 'No'}
+                  {category.isActive ? (t('mediation.categories.yes') || t('common.yes') || 'Yes') : (t('mediation.categories.no') || t('common.no') || 'No')}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Is Featured</label>
+                <label className="text-sm font-medium text-gray-500">{t('mediation.categories.isFeatured') || 'Is Featured'}</label>
                 <p className="text-lg font-semibold mt-1">
-                  {category.isFeatured ? 'Yes' : 'No'}
+                  {category.isFeatured ? (t('mediation.categories.yes') || t('common.yes') || 'Yes') : (t('mediation.categories.no') || t('common.no') || 'No')}
                 </p>
               </div>
             </div>

@@ -58,7 +58,7 @@ const AdminUsers = () => {
       setShowDetailsModal(true);
     } catch (error) {
       console.error('Error fetching user details:', error);
-      alert('Failed to fetch user details');
+      alert(t('admin.users.fetchDetailsFailed'));
     }
   };
 
@@ -71,13 +71,13 @@ const AdminUsers = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm(t('admin.users.deleteConfirm'))) return;
     try {
       await adminApi.deleteUser(id);
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user');
+      alert(t('admin.users.deleteFailed'));
     }
   };
 
@@ -87,7 +87,7 @@ const AdminUsers = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
-      alert('Failed to update user status');
+      alert(t('admin.users.statusUpdateFailed'));
     }
   };
 
@@ -105,7 +105,7 @@ const AdminUsers = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading users...</p>
+          <p className="text-muted-foreground">{t('admin.users.loading')}</p>
         </div>
       </div>
     );
@@ -115,15 +115,15 @@ const AdminUsers = () => {
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Users Management</h1>
-          <p className="text-muted-foreground mt-2">Manage all platform users</p>
+          <h1 className="text-3xl font-bold">{t('admin.users.title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('admin.users.subtitle')}</p>
         </div>
         <button
           onClick={handleCreate}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
         >
           <Plus className="w-5 h-5" />
-          Add User
+          {t('admin.users.addUser')}
         </button>
       </div>
 
@@ -135,7 +135,7 @@ const AdminUsers = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder={t('admin.users.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -152,9 +152,9 @@ const AdminUsers = () => {
               }}
               className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="">{t('admin.users.allStatus')}</option>
+              <option value="active">{t('mediation.common.active')}</option>
+              <option value="inactive">{t('mediation.common.inactive')}</option>
             </select>
             <button
               onClick={() => {
@@ -164,7 +164,7 @@ const AdminUsers = () => {
               }}
               className="px-4 py-2 border rounded-lg hover:bg-gray-50"
             >
-              Clear Filters
+              {t('admin.users.clearFilters')}
             </button>
           </div>
         </CardContent>
@@ -173,26 +173,26 @@ const AdminUsers = () => {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Users List ({pagination.total})</CardTitle>
+          <CardTitle>{t('admin.users.usersList')} ({pagination.total})</CardTitle>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No users found</p>
+              <p className="text-muted-foreground">{t('admin.users.noUsersFound')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-4">ID</th>
-                    <th className="text-left p-4">Name</th>
-                    <th className="text-left p-4">Email</th>
-                    <th className="text-left p-4">Phone</th>
-                    <th className="text-left p-4">Location</th>
-                    <th className="text-left p-4">Status</th>
-                    <th className="text-left p-4">Joined</th>
-                    <th className="text-left p-4">Actions</th>
+                    <th className="text-left p-4">{t('common.id')}</th>
+                    <th className="text-left p-4">{t('common.name')}</th>
+                    <th className="text-left p-4">{t('common.email')}</th>
+                    <th className="text-left p-4">{t('common.phone')}</th>
+                    <th className="text-left p-4">{t('common.location')}</th>
+                    <th className="text-left p-4">{t('common.status')}</th>
+                    <th className="text-left p-4">{t('admin.users.joined')}</th>
+                    <th className="text-left p-4">{t('common.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -215,7 +215,7 @@ const AdminUsers = () => {
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {user.isActive ? 'Active' : 'Inactive'}
+                          {user.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                         </span>
                       </td>
                       <td className="p-4">
@@ -226,14 +226,14 @@ const AdminUsers = () => {
                           <button
                             onClick={() => navigate(`/stockship/admin/users/${user.id}/view`)}
                             className="p-2 hover:bg-gray-100 rounded"
-                            title="View Details"
+                            title={t('admin.users.viewDetails')}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => navigate(`/stockship/admin/users/${user.id}/edit`)}
                             className="p-2 hover:bg-blue-100 rounded text-blue-600"
-                            title="Edit"
+                            title={t('common.edit')}
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -244,7 +244,7 @@ const AdminUsers = () => {
                                 ? 'hover:bg-red-100 text-red-600' 
                                 : 'hover:bg-green-100 text-green-600'
                             }`}
-                            title={user.isActive ? 'Deactivate' : 'Activate'}
+                            title={user.isActive ? (t('mediation.employees.deactivate') || 'Deactivate') : (t('mediation.employees.activate') || 'Activate')}
                           >
                             {user.isActive ? (
                               <UserX className="w-4 h-4" />
@@ -255,7 +255,7 @@ const AdminUsers = () => {
                           <button
                             onClick={() => handleDelete(user.id)}
                             className="p-2 hover:bg-red-100 rounded text-red-600"
-                            title="Delete"
+                            title={t('common.delete')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -272,7 +272,7 @@ const AdminUsers = () => {
           {pagination.pages > 1 && (
             <div className="flex justify-between items-center mt-4">
               <div className="text-sm text-gray-600">
-                Page {pagination.page} of {pagination.pages}
+                {t('admin.users.pageOf').replace('{{page}}', pagination.page).replace('{{pages}}', pagination.pages)}
               </div>
               <div className="flex gap-2">
                 <button
@@ -280,14 +280,14 @@ const AdminUsers = () => {
                   disabled={pagination.page === 1}
                   className="px-4 py-2 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  Previous
+                  {t('admin.users.previous')}
                 </button>
                 <button
                   onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.pages, prev.page + 1) }))}
                   disabled={pagination.page === pagination.pages}
                   className="px-4 py-2 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  Next
+                  {t('admin.users.next')}
                 </button>
               </div>
             </div>
@@ -301,7 +301,7 @@ const AdminUsers = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">User Details</h2>
+              <h2 className="text-2xl font-bold">{t('admin.users.userDetails')}</h2>
               <button
                 onClick={() => setShowDetailsModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -310,28 +310,28 @@ const AdminUsers = () => {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div><strong>ID:</strong> {selectedUser.id}</div>
-              <div><strong>Email:</strong> {selectedUser.email}</div>
-              <div><strong>Name:</strong> {selectedUser.name || 'N/A'}</div>
-              <div><strong>Phone:</strong> {
+              <div><strong>{t('common.id')}:</strong> {selectedUser.id}</div>
+              <div><strong>{t('common.email')}:</strong> {selectedUser.email}</div>
+              <div><strong>{t('common.name')}:</strong> {selectedUser.name || 'N/A'}</div>
+              <div><strong>{t('common.phone')}:</strong> {
                 selectedUser.countryCode && selectedUser.phone 
                   ? `${selectedUser.countryCode} ${selectedUser.phone}` 
                   : selectedUser.phone || 'N/A'
               }</div>
-              <div><strong>Country:</strong> {selectedUser.country || 'N/A'}</div>
-              <div><strong>City:</strong> {selectedUser.city || 'N/A'}</div>
-              <div><strong>Language:</strong> {selectedUser.language || 'N/A'}</div>
-              <div><strong>Status:</strong> 
+              <div><strong>{t('common.country')}:</strong> {selectedUser.country || 'N/A'}</div>
+              <div><strong>{t('common.city')}:</strong> {selectedUser.city || 'N/A'}</div>
+              <div><strong>{t('common.language')}:</strong> {selectedUser.language || 'N/A'}</div>
+              <div><strong>{t('common.status')}:</strong> 
                 <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
                   selectedUser.isActive 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {selectedUser.isActive ? 'Active' : 'Inactive'}
+                  {selectedUser.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                 </span>
               </div>
-              <div><strong>Email Verified:</strong> {selectedUser.isEmailVerified ? 'Yes' : 'No'}</div>
-              <div><strong>Joined:</strong> {formatDate(selectedUser.createdAt)}</div>
+              <div><strong>{t('admin.users.emailVerified')}:</strong> {selectedUser.isEmailVerified ? t('common.yes') : t('common.no')}</div>
+              <div><strong>{t('admin.users.joined')}:</strong> {formatDate(selectedUser.createdAt)}</div>
             </div>
             <div className="mt-4 flex justify-end">
               <button
@@ -341,7 +341,7 @@ const AdminUsers = () => {
                 }}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
               >
-                Edit User
+                {t('admin.users.editUser')}
               </button>
             </div>
           </div>

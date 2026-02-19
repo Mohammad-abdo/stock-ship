@@ -1,4 +1,5 @@
 /* Font Family Imports - Must be at the top */
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
@@ -32,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-    --font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif;
+    --font-family: 'Alexandria', system-ui, -apple-system, sans-serif;
 }
 
 .dark {
@@ -506,18 +507,18 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Tajawal', 'Cairo', var(--font-family), system-ui, -apple-system, sans-serif;
+    font-family: 'Alexandria', var(--font-family), system-ui, -apple-system, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   * {
-    font-family: 'Tajawal', 'Cairo', var(--font-family), system-ui, -apple-system, sans-serif;
+    font-family: 'Alexandria', var(--font-family), system-ui, -apple-system, sans-serif;
     border-color: hsl(var(--border));
   }
   
-  /* Ensure Tajawal font is applied globally */
+  /* خط Alexandria للوحات التحكم */
   html, body, #root {
-    font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif !important;
+    font-family: 'Alexandria', system-ui, -apple-system, sans-serif !important;
   }
 }
 

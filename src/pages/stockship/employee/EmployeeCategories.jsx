@@ -152,7 +152,7 @@ const EmployeeCategories = () => {
                         <div className="flex items-center gap-2">
                           <FolderTree className="w-4 h-4 text-gray-400" />
                           <div>
-                            <div className="font-semibold">{category.nameKey || 'N/A'}</div>
+                            <div className="font-semibold">{category.nameKey ? t(category.nameKey) : 'N/A'}</div>
                             {category.slug && (
                               <div className="text-sm text-gray-500">/{category.slug}</div>
                             )}
@@ -160,7 +160,7 @@ const EmployeeCategories = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        {category.parent?.nameKey || 'Root'}
+                        {category.parentId ? (category.parent?.nameKey ? t(category.parent.nameKey) : '—') : t('mediation.categories.root')}
                       </td>
                       <td className="p-4">{category.level || 0}</td>
                       <td className="p-4">{category._count?.products || 0}</td>
@@ -170,7 +170,7 @@ const EmployeeCategories = () => {
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {category.isActive ? 'Active' : 'Inactive'}
+                          {category.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                         </span>
                       </td>
                       <td className="p-4">
@@ -222,10 +222,10 @@ const EmployeeCategories = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><strong>ID:</strong> {selectedCategory.id}</div>
-              <div><strong>Name Key:</strong> {selectedCategory.nameKey}</div>
+              <div><strong>Name Key:</strong> {selectedCategory.nameKey ? t(selectedCategory.nameKey) : selectedCategory.nameKey}</div>
               <div><strong>Slug:</strong> {selectedCategory.slug || 'N/A'}</div>
               <div><strong>Level:</strong> {selectedCategory.level || 0}</div>
-              <div><strong>Parent:</strong> {selectedCategory.parent?.nameKey || 'Root'}</div>
+              <div><strong>Parent:</strong> {selectedCategory.parentId ? (selectedCategory.parent?.nameKey ? t(selectedCategory.parent.nameKey) : '—') : t('mediation.categories.root')}</div>
               <div><strong>Display Order:</strong> {selectedCategory.displayOrder || 'N/A'}</div>
               <div><strong>Products Count:</strong> {selectedCategory._count?.products || 0}</div>
               <div><strong>Status:</strong> 
@@ -234,12 +234,12 @@ const EmployeeCategories = () => {
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {selectedCategory.isActive ? 'Active' : 'Inactive'}
+                  {selectedCategory.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                 </span>
               </div>
               {selectedCategory.descriptionKey && (
                 <div className="col-span-2">
-                  <strong>Description:</strong> {selectedCategory.descriptionKey}
+                  <strong>Description:</strong> {selectedCategory.descriptionKey ? t(selectedCategory.descriptionKey) : selectedCategory.descriptionKey}
                 </div>
               )}
               {selectedCategory.children && selectedCategory.children.length > 0 && (
@@ -247,7 +247,7 @@ const EmployeeCategories = () => {
                   <strong>Sub-categories:</strong>
                   <ul className="list-disc list-inside mt-2">
                     {selectedCategory.children.map(child => (
-                      <li key={child.id}>{child.nameKey}</li>
+                      <li key={child.id}>{child.nameKey ? t(child.nameKey) : child.nameKey}</li>
                     ))}
                   </ul>
                 </div>

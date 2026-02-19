@@ -181,7 +181,7 @@ const AdminEmployees = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/stockship/admin/employees/create')}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
           {t('mediation.employees.addEmployee')}

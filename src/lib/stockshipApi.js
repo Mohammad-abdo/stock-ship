@@ -139,6 +139,7 @@ export const adminApi = {
   // Traders (Mediation Platform)
   getTraders: (params) => stockshipApi.get("/admin/traders", { params }),
   getTrader: (id) => stockshipApi.get(`/traders/${id}`),
+  createTrader: (data) => stockshipApi.post("/admin/traders", data),
   updateTrader: (id, data) => stockshipApi.put(`/traders/${id}`, data),
   deleteTrader: (id) => stockshipApi.delete(`/admin/traders/${id}`),
   
@@ -208,6 +209,7 @@ export const adminApi = {
   // Categories
   getCategories: (params) => stockshipApi.get("/categories", { params }),
   getCategory: (id) => stockshipApi.get(`/categories/${id}`),
+  getCategoryOffers: (id) => stockshipApi.get(`/categories/${id}/offers`),
   createCategory: (data) => stockshipApi.post("/categories", data),
   updateCategory: (id, data) => stockshipApi.put(`/categories/${id}`, data),
   deleteCategory: (id) => stockshipApi.delete(`/categories/${id}`),

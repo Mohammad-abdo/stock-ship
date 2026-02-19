@@ -152,7 +152,7 @@ const AdminCategories = () => {
                         <div className="flex items-center gap-2">
                           <FolderTree className="w-4 h-4 text-gray-400" />
                           <div>
-                            <div className="font-semibold">{category.nameKey || 'N/A'}</div>
+                            <div className="font-semibold">{category.nameKey ? t(category.nameKey) : 'N/A'}</div>
                             {category.slug && (
                               <div className="text-sm text-gray-500">/{category.slug}</div>
                             )}
@@ -160,7 +160,7 @@ const AdminCategories = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        {category.parent?.nameKey || t('mediation.categories.root') || 'Root'}
+                        {category.parentId ? (category.parent?.nameKey ? t(category.parent.nameKey) : '—') : t('mediation.categories.root')}
                       </td>
                       <td className="p-4">{category.level || 0}</td>
                       <td className="p-4">{category._count?.products || 0}</td>
@@ -170,7 +170,7 @@ const AdminCategories = () => {
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {category.isActive ? (t('mediation.common.active') || 'Active') : (t('mediation.common.inactive') || 'Inactive')}
+                          {category.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                         </span>
                       </td>
                       <td className="p-4">
@@ -222,10 +222,10 @@ const AdminCategories = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><strong>{t('mediation.common.id') || 'ID'}:</strong> {selectedCategory.id}</div>
-              <div><strong>{t('mediation.categories.nameKey') || 'Name Key'}:</strong> {selectedCategory.nameKey}</div>
+              <div><strong>{t('mediation.categories.nameKey') || 'Name Key'}:</strong> {selectedCategory.nameKey ? t(selectedCategory.nameKey) : selectedCategory.nameKey}</div>
               <div><strong>{t('mediation.categories.slug') || 'Slug'}:</strong> {selectedCategory.slug || 'N/A'}</div>
               <div><strong>{t('mediation.categories.level') || 'Level'}:</strong> {selectedCategory.level || 0}</div>
-              <div><strong>{t('mediation.categories.parent') || 'Parent'}:</strong> {selectedCategory.parent?.nameKey || (t('mediation.categories.root') || 'Root')}</div>
+              <div><strong>{t('mediation.categories.parent') || 'Parent'}:</strong> {selectedCategory.parentId ? (selectedCategory.parent?.nameKey ? t(selectedCategory.parent.nameKey) : '—') : t('mediation.categories.root')}</div>
               <div><strong>{t('mediation.categories.displayOrder') || 'Display Order'}:</strong> {selectedCategory.displayOrder || 'N/A'}</div>
               <div><strong>{t('mediation.categories.productsCount') || 'Products Count'}:</strong> {selectedCategory._count?.products || 0}</div>
               <div><strong>{t('mediation.common.status') || 'Status'}:</strong> 
@@ -234,12 +234,12 @@ const AdminCategories = () => {
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {selectedCategory.isActive ? (t('mediation.common.active') || 'Active') : (t('mediation.common.inactive') || 'Inactive')}
+                  {selectedCategory.isActive ? t('mediation.common.active') : t('mediation.common.inactive')}
                 </span>
               </div>
               {selectedCategory.descriptionKey && (
                 <div className="col-span-2">
-                  <strong>{t('mediation.common.description') || 'Description'}:</strong> {selectedCategory.descriptionKey}
+                  <strong>{t('mediation.common.description') || 'Description'}:</strong> {selectedCategory.descriptionKey ? t(selectedCategory.descriptionKey) : selectedCategory.descriptionKey}
                 </div>
               )}
               {selectedCategory.children && selectedCategory.children.length > 0 && (
@@ -247,7 +247,7 @@ const AdminCategories = () => {
                   <strong>{t('mediation.categories.subCategories') || 'Sub-categories'}:</strong>
                   <ul className="list-disc list-inside mt-2">
                     {selectedCategory.children.map(child => (
-                      <li key={child.id}>{child.nameKey}</li>
+                      <li key={child.id}>{child.nameKey ? t(child.nameKey) : child.nameKey}</li>
                     ))}
                   </ul>
                 </div>

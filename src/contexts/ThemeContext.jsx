@@ -9,7 +9,7 @@ export const ThemeProvider = ({ children }) => {
     return localStorage.getItem('primaryColor') || 'blue';
   });
   const [fontFamily, setFontFamily] = useState(() => {
-    return localStorage.getItem('fontFamily') || 'inter';
+    return localStorage.getItem('fontFamily') || 'alexandria';
   });
   const [sidebarStyle, setSidebarStyle] = useState(() => {
     return localStorage.getItem('sidebarStyle') || 'default';
@@ -89,6 +89,7 @@ export const ThemeProvider = ({ children }) => {
 
     // Apply font family
     const fonts = {
+      alexandria: '"Alexandria", system-ui, -apple-system, sans-serif',
       inter: '"Inter", system-ui, -apple-system, sans-serif',
       roboto: '"Roboto", system-ui, sans-serif',
       poppins: '"Poppins", system-ui, sans-serif',

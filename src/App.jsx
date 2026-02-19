@@ -67,6 +67,7 @@ import EditCoupon from "./pages/stockship/admin/EditCoupon";
 import StockshipAdminOffers from "./pages/stockship/admin/AdminOffers";
 import AdminEmployees from "./pages/stockship/admin/AdminEmployees";
 import AdminTraders from "./pages/stockship/admin/AdminTraders";
+import AdminCreateTrader from "./pages/stockship/admin/CreateTrader";
 import AdminDeals from "./pages/stockship/admin/AdminDeals";
 import ViewTrader from "./pages/stockship/admin/ViewTrader";
 import ViewEmployee from "./pages/stockship/admin/ViewEmployee";
@@ -343,6 +344,16 @@ function AppRoutes() {
           <MultiProtectedRoute requireAdmin>
             <StockshipAdminLayout>
               <AdminTraders />
+            </StockshipAdminLayout>
+          </MultiProtectedRoute>
+        }
+      />
+      <Route
+        path="/stockship/admin/traders/create"
+        element={
+          <MultiProtectedRoute requireAdmin>
+            <StockshipAdminLayout>
+              <AdminCreateTrader />
             </StockshipAdminLayout>
           </MultiProtectedRoute>
         }

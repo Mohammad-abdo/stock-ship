@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMultiAuth } from '@/contexts/MultiAuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { traderApi } from '@/lib/mediationApi';
+import { adminApi } from '@/lib/stockshipApi';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import {
@@ -14,19 +13,21 @@ import {
   Mail,
   Phone,
   MapPin,
-  FileText,
-  CreditCard
+  Briefcase,
+  CreditCard,
+  FileText
 } from 'lucide-react';
 import showToast from '@/lib/toast';
 import { countries, getFlagUrl, citiesByCountry } from '@/data/countries';
 
-export default function CreateTrader() {
+const CreateTrader = () => {
   const navigate = useNavigate();
-  const { getAuth } = useMultiAuth();
   const { t, isRTL } = useLanguage();
-  const { user } = getAuth('employee');
   const [loading, setLoading] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
   const [formData, setFormData] = useState({
+    employeeId: '',
     email: '',
     password: '',
     name: '',
@@ -43,6 +44,26 @@ export default function CreateTrader() {
     bankCode: '',
     swiftCode: ''
   });
+
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        setLoadingEmployees(true);
+        const res = await adminApi.getEmployees({ limit: 200, page: 1 });
+        const data = res.data?.data ?? res.data ?? [];
+        setEmployees(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Error loading employees:', err);
+        showToast.error(
+          t('mediation.traders.loadEmployeesFailed') || 'Failed to load employees',
+          err.response?.data?.message || t('common.tryAgain')
+        );
+      } finally {
+        setLoadingEmployees(false);
+      }
+    };
+    loadEmployees();
+  }, [t]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,15 +93,22 @@ export default function CreateTrader() {
       );
       return;
     }
+    if (!formData.employeeId) {
+      showToast.error(
+        t('mediation.traders.validationError') || 'Validation Error',
+        t('mediation.traders.selectEmployeeRequired') || 'Please select an employee to assign this trader to'
+      );
+      return;
+    }
 
     try {
       setLoading(true);
-      await traderApi.createTrader(user.id, formData);
+      await adminApi.createTrader(formData);
       showToast.success(
         t('mediation.employee.traderCreated') || 'Trader Created',
         t('mediation.employee.traderCreatedSuccess') || 'Trader has been registered successfully'
       );
-      navigate('/stockship/employee/traders');
+      navigate('/stockship/admin/traders');
     } catch (error) {
       console.error('Error creating trader:', error);
       showToast.error(
@@ -107,7 +135,7 @@ export default function CreateTrader() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate('/stockship/employee/traders')}
+          onClick={() => navigate('/stockship/admin/traders')}
           className="p-2 hover:bg-gray-100 rounded-lg"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -119,7 +147,7 @@ export default function CreateTrader() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 1. Basic Info */}
+        {/* 1. Employee & Basic Info */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -129,6 +157,33 @@ export default function CreateTrader() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className={labelClass}>
+                  {t('mediation.traders.employee')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <select
+                    name="employeeId"
+                    value={formData.employeeId}
+                    onChange={handleChange}
+                    required
+                    disabled={loadingEmployees}
+                    className={`${iconInputClass} disabled:bg-gray-100`}
+                  >
+                    <option value="">{t('mediation.traders.selectEmployee')}</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.name} ({emp.employeeCode || emp.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('mediation.traders.assignEmployeeHint')}
+                </p>
+              </div>
+
               <div>
                 <label className={labelClass}>{t('mediation.traders.companyName')} <span className="text-red-500">*</span></label>
                 <div className="relative">
@@ -295,7 +350,7 @@ export default function CreateTrader() {
             type="button"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('/stockship/employee/traders')}
+            onClick={() => navigate('/stockship/admin/traders')}
             className="px-6 py-2 border rounded-lg hover:bg-gray-50"
           >
             {t('common.cancel') || 'Cancel'}
@@ -304,7 +359,7 @@ export default function CreateTrader() {
             type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            disabled={loading}
+            disabled={loading || loadingEmployees}
             className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -323,4 +378,6 @@ export default function CreateTrader() {
       </form>
     </motion.div>
   );
-}
+};
+
+export default CreateTrader;

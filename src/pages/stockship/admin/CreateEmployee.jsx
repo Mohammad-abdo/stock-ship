@@ -31,18 +31,18 @@ const CreateEmployee = () => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.password) {
-      showToast.error('Validation Error', 'Please fill in all required fields');
+      showToast.error(t('mediation.employees.validationError'), t('mediation.employees.requiredFields'));
       return;
     }
 
     try {
       setLoading(true);
       await adminApi.createEmployee(formData);
-      showToast.success('Employee Created', 'Employee has been created successfully');
+      showToast.success(t('mediation.employees.createSuccess'), t('mediation.employees.createSuccessDesc'));
       navigate('/stockship/admin/employees');
     } catch (error) {
       console.error('Error creating employee:', error);
-      showToast.error('Failed to create employee', error.response?.data?.message || 'Please try again');
+      showToast.error(t('mediation.employees.createFailed'), error.response?.data?.message || t('common.tryAgain'));
     } finally {
       setLoading(false);
     }

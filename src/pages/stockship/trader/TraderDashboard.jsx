@@ -162,7 +162,7 @@ export default function TraderDashboard() {
         </div>
         <Link
           to="/stockship/trader/offers/create"
-          className={`flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}
+          className={`flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-sm ${isRTL ? 'flex-row-reverse' : ''}`}
         >
           <Plus className="w-5 h-5" />
           <span>{language === 'ar' ? 'إنشاء إعلان' : 'Create Offer'}</span>

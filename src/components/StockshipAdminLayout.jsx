@@ -84,7 +84,7 @@ const StockshipAdminLayout = ({ children }) => {
   };
 
   return (
-    <div className={`flex h-screen bg-gray-50 overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'} style={{ fontFamily: 'Tajawal, sans-serif' }}>
+    <div className={`flex h-screen bg-gray-50 overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'} style={{ fontFamily: "'Alexandria', sans-serif" }}>
       {/* Glassmorphism Sidebar */}
       <aside
         className={`${
