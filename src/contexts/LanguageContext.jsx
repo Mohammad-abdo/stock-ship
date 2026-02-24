@@ -42,12 +42,19 @@ export const LanguageProvider = ({ children }) => {
     setLanguage(prev => prev === 'ar' ? 'en' : 'ar');
   }, []);
 
+  const setLanguageStable = useCallback((lang) => {
+    if (translations[lang]) setLanguage(lang);
+  }, []);
+
   // Memoize the context value to prevent unnecessary re-renders
+  const isRTL = language === 'ar';
   const contextValue = useMemo(() => ({
     language,
+    isRTL,
+    setLanguage: setLanguageStable,
     t,
     toggleLanguage
-  }), [language, t, toggleLanguage]);
+  }), [language, isRTL, setLanguageStable, t, toggleLanguage]);
 
   return (
     <LanguageContext.Provider value={contextValue}>

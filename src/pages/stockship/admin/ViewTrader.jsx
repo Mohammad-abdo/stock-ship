@@ -19,10 +19,32 @@ const ViewTrader = () => {
   const [loading, setLoading] = useState(true);
   const [trader, setTrader] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [employees, setEmployees] = useState([]);
+  const [assignEmployeeId, setAssignEmployeeId] = useState('');
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     fetchTrader();
   }, [id]);
+
+  useEffect(() => {
+    if (!trader || activeTab !== 'overview') return;
+    const loadEmployees = async () => {
+      try {
+        const res = await adminApi.getEmployees({ limit: 200, page: 1 });
+        const data = res.data?.data ?? res.data ?? [];
+        setEmployees(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error('Error loading employees:', e);
+      }
+    };
+    loadEmployees();
+  }, [trader?.id, activeTab]);
+
+  useEffect(() => {
+    if (trader?.employeeId) setAssignEmployeeId(trader.employeeId);
+    else setAssignEmployeeId('');
+  }, [trader?.employeeId]);
 
   const fetchTrader = async () => {
     try {
@@ -111,6 +133,20 @@ const ViewTrader = () => {
     if (!date) return t('common.notAvailable');
     const locale = isRTL ? 'ar-SA' : 'en-US';
     return new Date(date).toLocaleString(locale);
+  };
+
+  const handleAssignEmployee = async () => {
+    if (!assignEmployeeId) return;
+    try {
+      setAssigning(true);
+      await adminApi.assignTraderToEmployee(id, assignEmployeeId);
+      showToast.success(t('mediation.viewTrader.assignSuccess') || 'تم تحديث تعيين المندوب بنجاح');
+      fetchTrader();
+    } catch (err) {
+      showToast.error(err.response?.data?.message || t('common.tryAgain'));
+    } finally {
+      setAssigning(false);
+    }
   };
 
   if (loading) {
@@ -319,6 +355,51 @@ const ViewTrader = () => {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* تعيين المندوب - صلاحية الأدمن لتعديل التعيين */}
+            <Card>
+              <CardHeader>
+                <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <Briefcase className="w-5 h-5" />
+                  {t('mediation.viewTrader.assignedEmployee') || 'المندوب المعيّن'}
+                </CardTitle>
+                <p className={`text-sm text-muted-foreground ${isRTL ? 'text-right' : 'text-left'}`}>
+                  {t('mediation.viewTrader.assignedEmployeeHint') || 'يمكنك تعديل تعيين المندوب من هنا.'}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className={`flex flex-wrap items-end gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="min-w-[200px] flex-1">
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">{t('mediation.traders.employee')}</label>
+                    <select
+                      value={assignEmployeeId}
+                      onChange={(e) => setAssignEmployeeId(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="">{t('mediation.viewTrader.noEmployee') || '— لا مندوب —'}</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.name} ({emp.employeeCode || emp.email}){emp.country ? ` — ${emp.country}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAssignEmployee}
+                    disabled={assigning || !assignEmployeeId}
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {assigning ? t('common.saving') || 'جاري الحفظ...' : t('mediation.viewTrader.saveAssignment') || 'حفظ التعيين'}
+                  </button>
+                </div>
+                {trader.employee && (
+                  <p className={`mt-3 text-sm text-muted-foreground ${isRTL ? 'text-right' : 'text-left'}`}>
+                    {t('mediation.viewTrader.currentlyAssigned') || 'المعيّن حالياً:'} {trader.employee.name} ({trader.employee.employeeCode || trader.employee.email})
+                  </p>
+                )}
               </CardContent>
             </Card>
 

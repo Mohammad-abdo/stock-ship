@@ -5,7 +5,7 @@ import { useMultiAuth } from '@/contexts/MultiAuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { traderApi } from '@/lib/mediationApi';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Edit, Mail, Phone, MapPin, Package, ShoppingCart, QrCode, Calendar, CheckCircle, XCircle, Building2, User, Download, X } from 'lucide-react';
+import { ArrowLeft, Edit, Mail, Phone, MapPin, Package, ShoppingCart, QrCode, Calendar, Building2, Download, X } from 'lucide-react';
 import showToast from '@/lib/toast';
 
 const ViewTrader = () => {
@@ -13,6 +13,8 @@ const ViewTrader = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t, language } = useLanguage();
+  const isRTL = language === 'ar';
+  const dir = isRTL ? 'rtl' : 'ltr';
   const { getAuth } = useMultiAuth();
   const { user } = getAuth('employee');
   const [loading, setLoading] = useState(true);
@@ -80,46 +82,48 @@ const ViewTrader = () => {
 
   return (
     <motion.div
+      dir={dir}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6 p-6"
+      className="space-y-6 p-6 bg-gray-50/50 min-h-screen"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      {/* Header: وضوح التباين وسهولة الوصول */}
+      <div className={`flex flex-wrap items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/stockship/employee/traders')}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 shadow-sm"
+            aria-label={t('common.back') || 'Back'}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
           </motion.button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+          <div className={isRTL ? 'text-right' : 'text-left'}>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
               {t('mediation.traders.viewDetails') || 'Trader Details'}
             </h1>
-            <p className="text-muted-foreground mt-2">
-              {t('mediation.employee.traderInfo') || 'View trader information and QR code'}
+            <p className="text-gray-600 mt-1 text-sm">
+              {trader.companyName || trader.name} · {trader.traderCode}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex flex-wrap items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowQRModal(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-medium text-sm shadow-sm"
           >
             <QrCode className="w-4 h-4" />
             {t('mediation.employee.viewQR') || 'View QR Code'}
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate(`/stockship/employee/traders/${id}/edit`)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-white hover:bg-primary/90 font-medium text-sm shadow-md"
           >
             <Edit className="w-4 h-4" />
             {t('common.edit') || 'Edit'}
@@ -127,52 +131,69 @@ const ViewTrader = () => {
         </div>
       </div>
 
-      {/* Status Badge */}
-      <div className="flex items-center gap-4">
+      {/* Status + Quick actions */}
+      <div className={`flex flex-wrap items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {getStatusBadge(trader)}
+        <div className="h-4 w-px bg-gray-200 hidden sm:block" />
+        <button
+          type="button"
+          onClick={() => navigate('/stockship/employee/offers', { state: { traderId: id } })}
+          className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          <Package className="w-4 h-4" />
+          {t('mediation.traders.offers') || 'Offers'} ({trader._count?.offers ?? 0})
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/stockship/employee/deals', { state: { traderId: id } })}
+          className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          <ShoppingCart className="w-4 h-4" />
+          {t('mediation.traders.deals') || 'Deals'} ({trader._count?.deals ?? 0})
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Information */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Info */}
-          <Card className="border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-gray-600" />
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className={`flex items-center gap-2 text-gray-900 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <Building2 className="w-5 h-5 text-gray-600 shrink-0" />
                 {t('mediation.traders.basicInfo') || 'Basic Information'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.traderCode') || 'Trader Code'}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.traderCode') || 'Trader Code'}</p>
                   <p className="font-mono font-semibold text-gray-900">{trader.traderCode || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.companyName') || 'Company Name'}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.companyName') || 'Company Name'}</p>
                   <p className="font-medium text-gray-900">{trader.companyName || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.contactPerson') || 'Contact Person'}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.contactPerson') || 'Contact Person'}</p>
                   <p className="font-medium text-gray-900">{trader.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.common.email') || 'Email'}</p>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.common.email') || 'Email'}</p>
+                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <Mail className="w-4 h-4 text-gray-500 shrink-0" />
                     <p className="text-gray-900">{trader.email || 'N/A'}</p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.common.phone') || 'Phone'}</p>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-gray-400" />
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.common.phone') || 'Phone'}</p>
+                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <Phone className="w-4 h-4 text-gray-500 shrink-0" />
                     <p className="text-gray-900">{trader.phone || 'N/A'}</p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.barcode') || 'Barcode'}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.barcode') || 'Barcode'}</p>
                   <p className="font-mono text-sm text-gray-900">{trader.barcode || 'N/A'}</p>
                 </div>
               </div>
@@ -181,30 +202,30 @@ const ViewTrader = () => {
 
           {/* Location Info */}
           {(trader.country || trader.city) && (
-            <Card className="border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-gray-600" />
+            <Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <CardTitle className={`flex items-center gap-2 text-gray-900 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <MapPin className="w-5 h-5 text-gray-600 shrink-0" />
                   {t('mediation.traders.location') || 'Location'}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {trader.country && (
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.country') || 'Country'}</p>
+                      <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.country') || 'Country'}</p>
                       <p className="font-medium text-gray-900">{trader.country}</p>
                     </div>
                   )}
                   {trader.city && (
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.city') || 'City'}</p>
+                      <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.city') || 'City'}</p>
                       <p className="font-medium text-gray-900">{trader.city}</p>
                     </div>
                   )}
                   {trader.countryCode && (
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">{t('mediation.traders.countryCode') || 'Country Code'}</p>
+                      <p className="text-sm text-gray-600 font-medium mb-1">{t('mediation.traders.countryCode') || 'Country Code'}</p>
                       <p className="font-medium text-gray-900">{trader.countryCode}</p>
                     </div>
                   )}
@@ -214,14 +235,14 @@ const ViewTrader = () => {
           )}
 
           {/* Statistics */}
-          <Card className="border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-gray-600" />
+<Card className="border border-gray-200 shadow-sm bg-white">
+              <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className={`flex items-center gap-2 text-gray-900 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <Package className="w-5 h-5 text-gray-600 shrink-0" />
                 {t('mediation.traders.statistics') || 'Statistics'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
@@ -244,14 +265,14 @@ const ViewTrader = () => {
 
         {/* QR Code Card */}
         <div className="space-y-6">
-          <Card className="border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-gray-600" />
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className={`flex items-center gap-2 text-gray-900 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <QrCode className="w-5 h-5 text-gray-600 shrink-0" />
                 {t('mediation.traders.qrCode') || 'QR Code'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {trader.qrCodeUrl ? (
                 <div className="space-y-4">
                   <div className="flex justify-center p-4 bg-white rounded-lg border border-gray-200">
@@ -289,14 +310,14 @@ const ViewTrader = () => {
           </Card>
 
           {/* Created Date */}
-          <Card className="border-gray-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-gray-600" />
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className={`flex items-center gap-2 text-gray-900 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <Calendar className="w-5 h-5 text-gray-600 shrink-0" />
                 {t('mediation.common.createdAt') || 'Created At'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <p className="text-sm text-gray-900">
                 {trader.createdAt 
                   ? new Date(trader.createdAt).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')

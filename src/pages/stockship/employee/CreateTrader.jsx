@@ -26,6 +26,7 @@ export default function CreateTrader() {
   const { t, isRTL } = useLanguage();
   const { user } = getAuth('employee');
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -46,6 +47,7 @@ export default function CreateTrader() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setFieldErrors(prev => ({ ...prev, [name]: '' }));
     setFormData(prev => {
       const next = { ...prev, [name]: value };
       if (name === 'country') next.city = '';
@@ -63,15 +65,29 @@ export default function CreateTrader() {
   })();
   const availableCities = citiesByCountry[selectedCountryCode] || [];
 
+  const requiredMsg = t('mediation.traders.fieldRequired') || 'This field is required';
+  const validate = () => {
+    const err = {};
+    if (!(formData.companyName || '').trim()) err.companyName = requiredMsg;
+    if (!(formData.name || '').trim()) err.name = requiredMsg;
+    if (!(formData.email || '').trim()) err.email = requiredMsg;
+    if (!(formData.password || '').trim()) err.password = requiredMsg;
+    else if (formData.password.length < 6) err.password = t('mediation.employees.passwordMinLength') || 'Password must be at least 6 characters';
+    return err;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.name || !formData.companyName) {
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       showToast.error(
-        t('mediation.employee.validationError') || 'Validation Error',
-        t('mediation.employee.requiredFields') || 'Please fill in all required fields'
+        t('mediation.traders.validationError') || 'Validation Error',
+        t('mediation.traders.pleaseFixErrors') || 'Please fix the highlighted fields below'
       );
       return;
     }
+    setFieldErrors({});
 
     try {
       setLoading(true);
@@ -119,6 +135,12 @@ export default function CreateTrader() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {Object.keys(fieldErrors).length > 0 && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            {t('mediation.traders.pleaseFixErrors') || 'Please fix the highlighted fields below to complete the addition'}
+          </div>
+        )}
+
         {/* 1. Basic Info */}
         <Card>
           <CardHeader>
@@ -133,26 +155,30 @@ export default function CreateTrader() {
                 <label className={labelClass}>{t('mediation.traders.companyName')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} required className={iconInputClass} placeholder={t('mediation.traders.companyNamePlaceholder')} />
+                  <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className={`${iconInputClass} ${fieldErrors.companyName ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.traders.companyNamePlaceholder')} />
                 </div>
+                {fieldErrors.companyName && <p className="mt-1 text-xs text-red-600">{fieldErrors.companyName}</p>}
               </div>
               <div>
                 <label className={labelClass}>{t('mediation.traders.contactPerson')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className={iconInputClass} placeholder={t('mediation.traders.contactPersonPlaceholder')} />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} className={`${iconInputClass} ${fieldErrors.name ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.traders.contactPersonPlaceholder')} />
                 </div>
+                {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
               </div>
               <div>
                 <label className={labelClass}>{t('mediation.common.email')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} required className={iconInputClass} placeholder={t('mediation.common.emailPlaceholder')} />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`${iconInputClass} ${fieldErrors.email ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.common.emailPlaceholder')} />
                 </div>
+                {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
               </div>
               <div>
                 <label className={labelClass}>{t('common.password')} <span className="text-red-500">*</span></label>
-                <input type="password" name="password" value={formData.password} onChange={handleChange} required minLength={6} className={inputClass} placeholder={t('mediation.employees.passwordPlaceholder')} />
+                <input type="password" name="password" value={formData.password} onChange={handleChange} minLength={6} className={`${inputClass} ${fieldErrors.password ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.employees.passwordPlaceholder')} />
+                {fieldErrors.password && <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>}
               </div>
               <div>
                 <label className={labelClass}>{t('mediation.common.phone')}</label>

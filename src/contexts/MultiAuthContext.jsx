@@ -83,10 +83,10 @@ export const MultiAuthProvider = ({ children }) => {
   }, []);
 
   // Login function that stores by role
-  const login = async (email, password, requestedRole = null) => {
+  const login = async (email, password, requestedRole = null, rememberMe = false) => {
     try {
       // Send role parameter to backend for explicit role-based login
-      const requestBody = { email, password };
+      const requestBody = { email, password, rememberMe: !!rememberMe };
       if (requestedRole) {
         // Map frontend role names to backend role names
         const roleMap = {

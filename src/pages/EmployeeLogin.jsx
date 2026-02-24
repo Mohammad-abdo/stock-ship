@@ -11,11 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Mail, Lock, Loader2, AlertCircle, Briefcase } from "lucide-react";
+import { Mail, Lock, Loader2, AlertCircle, Briefcase, Eye, EyeOff } from "lucide-react";
 
 export default function EmployeeLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, setActiveRole } = useMultiAuth();
@@ -29,7 +31,7 @@ export default function EmployeeLogin() {
     setLoading(true);
 
     try {
-      const result = await login(email, password, "employee");
+      const result = await login(email, password, "employee", rememberMe);
       
       if (setActiveRole) {
         setActiveRole("employee");
@@ -132,15 +134,23 @@ export default function EmployeeLogin() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-12 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded" aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}>
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </motion.div>
+
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="rounded border-input" />
+                <span>{t('login.rememberDevice') || 'Remember this device'}</span>
+              </label>
 
               <motion.button
                 initial={{ opacity: 0, y: 10 }}

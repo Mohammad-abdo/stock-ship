@@ -141,6 +141,7 @@ export const adminApi = {
   getTrader: (id) => stockshipApi.get(`/traders/${id}`),
   createTrader: (data) => stockshipApi.post("/admin/traders", data),
   updateTrader: (id, data) => stockshipApi.put(`/traders/${id}`, data),
+  assignTraderToEmployee: (traderId, employeeId) => stockshipApi.put(`/traders/${traderId}/assign`, { employeeId }),
   deleteTrader: (id) => stockshipApi.delete(`/admin/traders/${id}`),
   
   // Offers (Mediation Platform)

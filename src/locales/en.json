@@ -414,7 +414,10 @@
     "defaultCredentials": "Default credentials:",
     "welcomeAdmin": "Sign in to your admin account",
     "invalidCredentials": "Invalid email or password",
-    "loginFailed": "Login failed. Please try again"
+    "loginFailed": "Login failed. Please try again",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "rememberDevice": "Remember this device (extended session)"
   },
   "settings": {
     "language": "Language",
@@ -510,6 +513,7 @@
       "emailPlaceholder": "Enter email address",
       "password": "Password",
       "passwordPlaceholder": "Enter password (min 6 characters)",
+      "passwordMinLength": "Password must be at least 6 characters",
       "phonePlaceholder": "Enter phone number",
       "commissionRateHint": "Commission percentage (e.g., 1.0 for 1%)",
       "isActive": "Active",
@@ -571,7 +575,11 @@
       "country": "Country",
       "city": "City",
       "countryPlaceholder": "Enter country",
-      "cityPlaceholder": "Enter city"
+      "cityPlaceholder": "Enter city",
+      "fieldRequired": "This field is required",
+      "pleaseFixErrors": "Please fix the highlighted fields below to complete the addition",
+      "optionalAutoAssign": "Optional - auto-assigned from same country",
+      "selectEmployeeOrAuto": "Select representative or leave for auto-assign from same country"
     },
     "offers": {
       "title": "Advertising management",
@@ -1787,6 +1795,12 @@
       "employeeName": "Employee Name",
       "employeeCode": "Employee Code",
       "noEmployeeLinked": "No employee linked",
+      "assignedEmployee": "Assigned Representative",
+      "assignedEmployeeHint": "You can change the assigned representative here.",
+      "saveAssignment": "Save Assignment",
+      "noEmployee": "— No representative —",
+      "currentlyAssigned": "Currently assigned:",
+      "assignSuccess": "Representative assignment updated successfully",
       "linkedClientProfile": "Linked Client Profile (Dual Profile)",
       "clientName": "Client Name",
       "clientEmail": "Email",
