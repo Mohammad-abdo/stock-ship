@@ -425,6 +425,21 @@ export const uploadApi = {
         'Content-Type': 'multipart/form-data'
       }
     });
+  },
+
+  // Upload trader documents (images + PDF)
+  uploadDocuments: (files) => {
+    const formData = new FormData();
+    if (Array.isArray(files)) {
+      files.forEach(file => formData.append('documents', file));
+    } else {
+      formData.append('documents', files);
+    }
+    return api.post(`${BASE_URL}/upload/documents`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
   }
 };
 

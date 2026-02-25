@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { adminApi } from '@/lib/stockshipApi';
+import { uploadApi } from '@/lib/mediationApi';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import {
@@ -15,15 +16,20 @@ import {
   MapPin,
   Briefcase,
   CreditCard,
-  FileText
+  FileText,
+  Upload,
+  X
 } from 'lucide-react';
 import showToast from '@/lib/toast';
-import { countries, getFlagUrl, citiesByCountry } from '@/data/countries';
+import { countries, getFlagUrl, citiesByCountry, getDialCodeForCountryName } from '@/data/countries';
+import { CountrySearchSelect } from '@/components/CountrySearchSelect';
 
 const CreateTrader = () => {
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [uploadingDocs, setUploadingDocs] = useState(false);
+  const [documents, setDocuments] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -66,12 +72,40 @@ const CreateTrader = () => {
     loadEmployees();
   }, [t]);
 
+  const handleDocumentUpload = async (e) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    try {
+      setUploadingDocs(true);
+      const res = await uploadApi.uploadDocuments(Array.from(files));
+      const list = (res.data?.data?.files || []).map((f) => ({ name: f.originalname, url: f.url }));
+      setDocuments((prev) => [...prev, ...list]);
+    } catch (err) {
+      console.error('Document upload failed:', err);
+      showToast.error(
+        t('mediation.traders.documentsUploadFailed') || 'Upload failed',
+        err.response?.data?.message || t('common.tryAgain')
+      );
+    } finally {
+      setUploadingDocs(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeDocument = (index) => {
+    setDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFieldErrors(prev => ({ ...prev, [name]: '' }));
     setFormData(prev => {
       const next = { ...prev, [name]: value };
-      if (name === 'country') next.city = '';
+      if (name === 'country') {
+        next.city = '';
+        const dial = getDialCodeForCountryName(value);
+        if (dial) next.countryCode = dial;
+      }
       return next;
     });
   };
@@ -128,7 +162,7 @@ const CreateTrader = () => {
 
     try {
       setLoading(true);
-      await adminApi.createTrader(formData);
+      await adminApi.createTrader({ ...formData, documents: documents.length ? documents : undefined });
       showToast.success(
         t('mediation.employee.traderCreated') || 'Trader Created',
         t('mediation.employee.traderCreatedSuccess') || 'Trader has been registered successfully'
@@ -257,30 +291,14 @@ const CreateTrader = () => {
               </div>
               <div>
                 <label className={labelClass}>{t('mediation.traders.country')}</label>
-                <div className="relative flex items-center">
-                  <MapPin className={`absolute top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none z-10 ${isRTL ? 'right-3' : 'left-3'}`} />
-                  {selectedCountryCode && (
-                    <img
-                      src={getFlagUrl(selectedCountryCode)}
-                      alt=""
-                      className={`absolute top-1/2 -translate-y-1/2 w-6 h-4 object-cover rounded-sm pointer-events-none z-10 border border-gray-200 ${isRTL ? 'right-10' : 'left-10'}`}
-                      loading="lazy"
-                    />
-                  )}
-                  <select
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className={selectedCountryCode ? `w-full py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${isRTL ? 'pr-16 pl-4' : 'pl-16 pr-4'}` : iconInputClass}
-                  >
-                    <option value="">{t('mediation.traders.countryPlaceholder')}</option>
-                    {countries.map((c) => (
-                      <option key={c.code} value={c.nameEn}>
-                        {isRTL ? (c.nameAr || c.nameEn) : c.nameEn}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CountrySearchSelect
+                  value={formData.country}
+                  onChange={handleChange}
+                  placeholder={t('mediation.traders.countryPlaceholder')}
+                  searchPlaceholder={t('mediation.traders.searchCountryPlaceholder')}
+                  isRTL={isRTL}
+                  hasError={!!fieldErrors.country}
+                />
               </div>
               <div>
                 <label className={labelClass}>{t('mediation.traders.city')}</label>
@@ -378,6 +396,47 @@ const CreateTrader = () => {
               </div>
             </div>
           </CardContent>
+        </Card>
+
+        {/* 4. Trader Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5 text-muted-foreground" />
+              {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+                <label className={labelClass}>{t('mediation.traders.uploadTraderDocuments') || 'رفع ملفات التاجر (صور أو PDF)'}</label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  multiple
+                  onChange={handleDocumentUpload}
+                  disabled={uploadingDocs}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                />
+                {uploadingDocs && (
+                  <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t('mediation.common.uploading') || 'Uploading...'}
+                  </p>
+                )}
+                {documents.length > 0 && (
+                  <ul className="mt-3 space-y-2">
+                    {documents.map((doc, i) => (
+                      <li key={i} className="flex items-center justify-between gap-2 py-1 px-2 rounded bg-gray-50">
+                        <span className="text-sm truncate">{doc.name}</span>
+                        <button type="button" onClick={() => removeDocument(i)} className="p-1 text-red-600 hover:bg-red-50 rounded" aria-label="Remove">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </CardContent>
         </Card>
 
         <div className="flex justify-end gap-4 pt-4 border-t">

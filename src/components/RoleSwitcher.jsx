@@ -79,7 +79,7 @@ export default function RoleSwitcher() {
             onClick={() => setIsOpen(false)}
           />
           <div 
-            className="absolute top-full right-0 mt-2 w-48 rounded-lg z-20 border border-gray-200/50"
+            className="absolute top-full left-0 mt-2 w-48 rounded-lg z-20 border border-gray-200/50 min-w-[12rem]"
             style={{
               background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(20px) saturate(180%)',

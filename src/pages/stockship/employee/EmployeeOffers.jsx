@@ -241,10 +241,10 @@ const EmployeeOffers = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {language === 'ar' ? 'إدارة الإعلانات التجارية' : 'Commercial Advertisements Management'}
+            {t('mediation.employee.offersPageTitle') || 'Commercial Advertisements Management'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            {language === 'ar' ? 'إدارة ومراجعة الإعلانات التجارية للتجار' : 'Manage and review commercial advertisements from traders'}
+            {t('mediation.employee.offersPageSubtitle') || 'Manage and review commercial advertisements from traders'}
           </p>
         </div>
       </div>

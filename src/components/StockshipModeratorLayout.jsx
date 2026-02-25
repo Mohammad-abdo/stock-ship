@@ -6,6 +6,7 @@ import RoleSwitcher from "./RoleSwitcher";
 import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
+import AppLogo from "./AppLogo";
 import {
   LayoutDashboard,
   Users,
@@ -65,14 +66,14 @@ export default function StockshipModeratorLayout({ children }) {
         }}
       >
         {/* Logo Section */}
-        <div className={`h-16 flex items-center justify-between px-4 border-b border-gray-200/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className={isRTL ? 'text-right' : 'text-left'}>
-            <h2 className="text-lg font-semibold text-gray-900">Stockship</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{t('mediation.moderator.portal') || 'Moderator Portal'}</p>
+        <div className={`h-16 flex items-center justify-between px-4 border-b border-white/20 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ backgroundColor: '#194386' }}>
+          <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <AppLogo className="items-start" imgClassName="max-h-10" light />
+            <p className="text-xs text-white/80 mt-0.5">{t('mediation.moderator.portal') || 'Moderator Portal'}</p>
           </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100/60 text-gray-600"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-white/20 text-white"
             aria-label="Close menu"
           >
             <X size={18} />

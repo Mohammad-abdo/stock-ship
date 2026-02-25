@@ -92,11 +92,12 @@ const EmployeeSettings = () => {
 
     try {
       setSaving(true);
-      // Use auth updateProfile endpoint which supports employees
+      // Ensure employee token is used when calling auth API
+      localStorage.setItem('active_role', 'employee');
       const { authApi } = await import('@/lib/stockshipApi');
       await authApi.updateProfile({
         name: profileData.name,
-        phone: profileData.phone
+        phone: profileData.phone || undefined
       });
       showToast.success(
         t('mediation.employee.profileUpdated') || 'Profile Updated',
@@ -287,23 +288,24 @@ const EmployeeSettings = () => {
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Email (read-only – cannot be changed) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('mediation.common.email') || 'Email'} <span className="text-red-500">*</span>
+                  {t('mediation.common.email') || 'Email'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="email"
-                    name="email"
                     value={profileData.email}
-                    onChange={handleProfileChange}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+                    readOnly
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                     placeholder={t('mediation.common.emailPlaceholder') || 'Enter your email'}
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('mediation.employee.emailCannotChange') || 'Email cannot be changed'}
+                </p>
               </div>
 
               {/* Phone */}

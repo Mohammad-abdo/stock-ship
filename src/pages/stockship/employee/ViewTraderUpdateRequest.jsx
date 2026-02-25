@@ -182,8 +182,20 @@ const ViewTraderUpdateRequest = () => {
     return null;
   }
 
-  const requestedData = request.requestedData || {};
+  const rawRequested = request.requestedData;
+  const requestedData =
+    typeof rawRequested === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(rawRequested);
+          } catch {
+            return {};
+          }
+        })()
+      : rawRequested || {};
   const trader = request.trader || {};
+  const changeKeys = Object.keys(requestedData).filter((k) => k !== 'documents');
+  const documents = Array.isArray(requestedData.documents) ? requestedData.documents : [];
 
   return (
     <motion.div
@@ -278,7 +290,7 @@ const ViewTraderUpdateRequest = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              {Object.keys(requestedData).length === 0 ? (
+              {changeKeys.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <AlertCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>{t('mediation.trader.updateRequest.noChanges') || 'No changes requested'}</p>
@@ -308,14 +320,14 @@ const ViewTraderUpdateRequest = () => {
                   )}
                   {requestedData.country !== undefined && renderFieldComparison(
                     'country',
-                    t('mediation.common.country') || 'Country',
+                    t('mediation.trader.updateRequest.country') || t('mediation.common.country') || 'Country',
                     trader.country,
                     requestedData.country,
                     MapPin
                   )}
                   {requestedData.city !== undefined && renderFieldComparison(
                     'city',
-                    t('mediation.common.city') || 'City',
+                    t('mediation.trader.updateRequest.city') || t('mediation.common.city') || 'City',
                     trader.city,
                     requestedData.city,
                     MapPin
@@ -370,6 +382,42 @@ const ViewTraderUpdateRequest = () => {
                     Hash
                   )}
                 </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Trader Documents */}
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-50 border-b">
+              <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <FileText className="w-5 h-5 text-teal-600" />
+                {t('mediation.trader.updateRequest.traderDocuments') || 'Trader Documents'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {documents.length === 0 ? (
+                <div className="text-center py-6 text-gray-500">
+                  <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">{t('mediation.trader.updateRequest.noDocuments') || 'No documents uploaded with this request'}</p>
+                </div>
+              ) : (
+                <ul className={`space-y-2 ${isRTL ? 'pr-4' : 'pl-4'}`}>
+                  {documents.map((doc, index) => (
+                    <li key={index} className="flex items-center justify-between gap-3 py-2 border-b border-gray-100 last:border-0">
+                      <span className="text-sm font-medium text-gray-800 truncate flex-1" title={doc.name || doc.url}>
+                        {doc.name || doc.url || `Document ${index + 1}`}
+                      </span>
+                      <a
+                        href={doc.url?.startsWith('http') ? doc.url : `${import.meta.env.VITE_API_URL || ''}${doc.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline shrink-0"
+                      >
+                        {t('mediation.trader.updateRequest.viewDocument') || 'View'}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               )}
             </CardContent>
           </Card>
@@ -450,13 +498,19 @@ const ViewTraderUpdateRequest = () => {
               <CardContent className="p-4 space-y-4">
                 <div>
                   <Label className="text-sm font-medium mb-2 block">
-                    {t('mediation.trader.updateRequest.reviewNotes') || 'Review Notes'}
+                    {actionType === 'reject'
+                      ? (t('mediation.trader.updateRequest.rejectionReasonRequired') || t('mediation.trader.updateRequest.rejectionReason') || 'Reason for Rejection (required)')
+                      : (t('mediation.trader.updateRequest.reviewNotes') || 'Review Notes')}
                     {actionType === 'reject' && <span className="text-red-500 ml-1">*</span>}
                   </Label>
                   <Textarea
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    placeholder={t('mediation.trader.updateRequest.reviewNotesPlaceholder') || 'Add your review notes...'}
+                    placeholder={
+                      actionType === 'reject'
+                        ? (t('mediation.trader.updateRequest.reviewNotesRequired') || 'Please provide rejection reason')
+                        : (t('mediation.trader.updateRequest.reviewNotesPlaceholder') || 'Add your review notes...')
+                    }
                     rows={4}
                     className="w-full"
                   />
@@ -477,8 +531,9 @@ const ViewTraderUpdateRequest = () => {
                   <Button
                     variant="destructive"
                     onClick={handleReject}
-                    disabled={processing || !reviewNotes.trim()}
+                    disabled={processing}
                     className="w-full"
+                    title={t('mediation.trader.updateRequest.reviewNotesRequired') || 'Reason for rejection is required'}
                   >
                     {processing && actionType === 'reject' ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

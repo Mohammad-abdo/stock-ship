@@ -21,10 +21,13 @@ import {
   Info,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  ImagePlus,
+  Loader2
 } from 'lucide-react';
 import showToast from '@/lib/toast';
 import { adminApi } from '@/lib/stockshipApi';
+import { uploadApi } from '@/lib/mediationApi';
 
 const AdminSettings = () => {
   const { t, language } = useLanguage();
@@ -49,8 +52,10 @@ const AdminSettings = () => {
     timezone: 'Asia/Riyadh',
     currency: 'SAR',
     dateFormat: 'DD/MM/YYYY',
-    timeFormat: '24h'
+    timeFormat: '24h',
+    logoUrl: ''
   });
+  const [logoUploading, setLogoUploading] = useState(false);
 
   // Security Settings
   const [securitySettings, setSecuritySettings] = useState({
@@ -125,6 +130,7 @@ const AdminSettings = () => {
         if (settings.defaultLanguage) setGeneralSettings(prev => ({ ...prev, defaultLanguage: settings.defaultLanguage }));
         if (settings.timezone) setGeneralSettings(prev => ({ ...prev, timezone: settings.timezone }));
         if (settings.currency) setGeneralSettings(prev => ({ ...prev, currency: settings.currency }));
+        if (settings.logoUrl !== undefined) setGeneralSettings(prev => ({ ...prev, logoUrl: settings.logoUrl || '' }));
         
         // Update payment settings
         if (settings.taxRate !== undefined) setPaymentSettings(prev => ({ ...prev, taxRate: parseFloat(settings.taxRate) || 0 }));
@@ -157,7 +163,8 @@ const AdminSettings = () => {
           platformAddress: generalSettings.platformAddress,
           defaultLanguage: generalSettings.defaultLanguage,
           timezone: generalSettings.timezone,
-          currency: generalSettings.currency
+          currency: generalSettings.currency,
+          logoUrl: generalSettings.logoUrl || null
         });
       } else if (section === 'payment') {
         // Save payment settings (including CBM Rate and Shipping Commission)
@@ -294,6 +301,58 @@ const AdminSettings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Logo upload */}
+            <div>
+              <Label>{t('admin.settings.platformLogo') || 'شعار المنصة / Platform Logo'}</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                {t('admin.settings.platformLogoDesc') || 'يظهر في السايد بار وصفحات تسجيل الدخول. / Shown in sidebar and login pages.'}
+              </p>
+              {generalSettings.logoUrl && (
+                <div className="mb-2 flex items-center gap-4">
+                  <img
+                    src={(generalSettings.logoUrl.startsWith('http') ? '' : (import.meta.env.VITE_API_URL || '')) + generalSettings.logoUrl}
+                    alt="Logo"
+                    className="h-14 object-contain max-w-[200px] bg-gray-50 rounded border"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGeneralSettings(prev => ({ ...prev, logoUrl: '' }))}
+                  >
+                    {t('admin.settings.removeLogo') || 'Remove'}
+                  </Button>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="logo-upload"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      setLogoUploading(true);
+                      const res = await uploadApi.uploadImages(file);
+                      const url = res.data?.data?.files?.[0]?.url;
+                      if (url) setGeneralSettings(prev => ({ ...prev, logoUrl: url }));
+                      else showToast.error(t('admin.settings.uploadFailed') || 'Upload failed', '');
+                    } catch (err) {
+                      showToast.error(t('admin.settings.uploadFailed') || 'Upload failed', err.response?.data?.message);
+                    } finally {
+                      setLogoUploading(false);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+                <Label htmlFor="logo-upload" className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+                  {logoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
+                  {logoUploading ? (t('common.uploading') || 'Uploading...') : (t('admin.settings.uploadLogo') || 'Upload Logo')}
+                </Label>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label>{t('admin.settings.platformName') || 'Platform Name'}</Label>

@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Mail, Lock, Loader2, AlertCircle, Building2, Eye, EyeOff } from "lucide-react";
+import AppLogo from "@/components/AppLogo";
 
 export default function TraderLogin() {
   const [email, setEmail] = useState("");
@@ -70,15 +71,10 @@ export default function TraderLogin() {
       >
         <Card className="shadow-2xl border-0 backdrop-blur-sm bg-card/95">
           <CardHeader className="space-y-1 text-center pb-8">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mx-auto mb-4 w-16 h-16 rounded-full bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center"
-            >
-              <Building2 className="w-8 h-8 text-white" />
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mx-auto mb-4">
+              <AppLogo imgClassName="max-h-14" showTagline />
             </motion.div>
-            <CardTitle className="text-3xl font-bold bg-linear-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">
+            <CardTitle className="text-2xl font-bold bg-linear-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">
               {t('login.traderTitle')}
             </CardTitle>
             <CardDescription className="text-lg">

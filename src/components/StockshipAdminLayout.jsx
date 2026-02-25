@@ -7,6 +7,7 @@ import RoleSwitcher from "./RoleSwitcher";
 import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
+import AppLogo from "./AppLogo";
 import {
   LayoutDashboard,
   Users,
@@ -63,7 +64,7 @@ const StockshipAdminLayout = ({ children }) => {
     { icon: FolderTree, label: t('sidebar.categories') || 'Categories', path: "/stockship/admin/categories" },
     { icon: ImageIcon, label: t('sidebar.sliders') || 'Sliders', path: "/stockship/admin/sliders" },
     { icon: Video, label: t('sidebar.videoAds') || 'Video Ads', path: "/stockship/admin/video-ads" },
-    { icon: Users, label: t('admin.users'), path: "/stockship/admin/users" },
+    { icon: Users, label: t('admin.users.users'), path: "/stockship/admin/users" },
     { icon: Gift, label: t('mediation.offers.title'), path: "/stockship/admin/offers" },
     { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/admin/deals" },
     { icon: Truck, label: t('sidebar.shippingCompanies') || 'Shipping Companies', path: "/stockship/admin/shipping-companies" },
@@ -101,13 +102,15 @@ const StockshipAdminLayout = ({ children }) => {
         }}
       >
         {/* Logo Section */}
-        <div className={`h-16 flex items-center justify-between px-4 border-b border-gray-200/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`h-16 flex items-center justify-between px-4 border-b border-white/20 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ backgroundColor: '#194386' }}>
           {sidebarOpen && (
-            <h1 className={`text-lg font-semibold text-gray-900 ${isRTL ? 'order-2' : ''}`}>Stockship</h1>
+            <div className={`flex-1 min-w-0 ${isRTL ? 'order-2 text-right' : 'text-left'}`}>
+              <AppLogo imgClassName="max-h-10" light />
+            </div>
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`p-1.5 rounded-lg hover:bg-gray-100/60 transition-colors text-gray-600 ${isRTL ? 'order-1' : ''}`}
+            className={`p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white ${isRTL ? 'order-1' : ''}`}
             aria-label="Toggle sidebar"
           >
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}

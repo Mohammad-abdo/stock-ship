@@ -19,9 +19,13 @@ import {
   AlertCircle,
   CreditCard,
   Banknote,
-  Building
+  Building,
+  FileStack,
+  ExternalLink,
+  Upload,
+  X
 } from 'lucide-react';
-import { traderApi } from '@/lib/mediationApi';
+import { traderApi, uploadApi } from '@/lib/mediationApi';
 import showToast from '@/lib/toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -33,6 +37,8 @@ const TraderUpdateRequest = () => {
   const { user } = getAuth('trader');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingDocs, setUploadingDocs] = useState(false);
+  const [newDocuments, setNewDocuments] = useState([]); // [{ name, url }] to add in this request
   const [traderDetails, setTraderDetails] = useState(null);
   const [updateRequests, setUpdateRequests] = useState([]);
   const [requestData, setRequestData] = useState({
@@ -106,14 +112,39 @@ const TraderUpdateRequest = () => {
     }));
   };
 
+  const handleDocumentUpload = async (e) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    try {
+      setUploadingDocs(true);
+      const res = await uploadApi.uploadDocuments(Array.from(files));
+      const list = (res.data?.data?.files || []).map((f) => ({ name: f.originalname, url: f.url }));
+      setNewDocuments((prev) => [...prev, ...list]);
+    } catch (err) {
+      console.error('Document upload failed:', err);
+      showToast.error(
+        t('mediation.traders.documentsUploadFailed') || 'Upload failed',
+        err.response?.data?.message || t('common.tryAgain')
+      );
+    } finally {
+      setUploadingDocs(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeNewDocument = (index) => {
+    setNewDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if there are any changes
-    const hasChanges = Object.keys(requestData).some(key => {
+    // Check if there are any changes (including new documents)
+    const hasDataChanges = Object.keys(requestData).some(key => {
       const currentValue = traderDetails?.[key] || '';
       return requestData[key] !== currentValue;
     });
+    const hasChanges = hasDataChanges || newDocuments.length > 0;
 
     if (!hasChanges) {
       showToast.error(
@@ -135,13 +166,19 @@ const TraderUpdateRequest = () => {
 
     try {
       setSaving(true);
-      await traderApi.createUpdateRequest(requestData);
+      const payload = { ...requestData };
+      if (newDocuments.length > 0) {
+        const existing = Array.isArray(traderDetails?.documents) ? traderDetails.documents : [];
+        payload.documents = [...existing, ...newDocuments];
+      }
+      await traderApi.createUpdateRequest(payload);
       showToast.success(
         t('mediation.trader.updateRequest.requestCreated') || 'Request Created',
         t('mediation.trader.updateRequest.requestCreatedSuccess') || 'Your update request has been submitted successfully. An employee will review it soon.'
       );
       await loadUpdateRequests();
       await loadProfile();
+      setNewDocuments([]);
     } catch (error) {
       console.error('Error creating update request:', error);
       showToast.error(
@@ -542,6 +579,43 @@ const TraderUpdateRequest = () => {
                   </div>
                 </div>
 
+                {/* Documents – add new files to request */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {t('mediation.trader.updateRequest.uploadDocumentsHint') || 'You can add new documents. They will be applied when your request is approved.'}
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    multiple
+                    onChange={handleDocumentUpload}
+                    disabled={uploadingDocs}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                  />
+                  {uploadingDocs && (
+                    <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t('mediation.common.uploading') || 'Uploading...'}
+                    </p>
+                  )}
+                  {newDocuments.length > 0 && (
+                    <ul className="mt-3 space-y-2">
+                      {newDocuments.map((doc, i) => (
+                        <li key={i} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-gray-50">
+                          <span className="text-sm truncate">{doc.name}</span>
+                          <button type="button" onClick={() => removeNewDocument(i)} className="p-1 text-red-600 hover:bg-red-50 rounded" aria-label="Remove">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
                 {/* Submit Button */}
                 <div className="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
                   <motion.button
@@ -569,8 +643,44 @@ const TraderUpdateRequest = () => {
           </Card>
         </div>
 
-        {/* Update Requests History */}
-        <div>
+        {/* Sidebar: Documents + Request History */}
+        <div className="space-y-6">
+          {/* My Documents */}
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileStack className="w-5 h-5 text-gray-600" />
+                {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!traderDetails?.documents || (Array.isArray(traderDetails.documents) && traderDetails.documents.length === 0) ? (
+                <div className="text-center py-6 text-gray-500">
+                  <FileStack className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">{t('mediation.trader.noDocuments') || 'No documents uploaded'}</p>
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {(Array.isArray(traderDetails.documents) ? traderDetails.documents : []).map((doc, i) => (
+                    <li key={i} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100">
+                      <span className="text-sm truncate flex-1" title={doc.name}>{doc.name}</span>
+                      <a
+                        href={doc.url?.startsWith('http') ? doc.url : `${import.meta.env.VITE_API_URL || ''}${doc.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 p-1 text-primary-600 hover:text-primary-800"
+                        title={t('common.view') || 'View'}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Update Requests History */}
           <Card className="border-gray-200 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
