@@ -95,7 +95,8 @@ const AdminTraders = () => {
       fetchTraders();
     } catch (error) {
       console.error('Error deleting trader:', error);
-      showToast.error('Failed to delete trader', error.response?.data?.message || 'Please try again');
+      const msg = error.response?.data?.message || error.message || 'Please try again';
+      showToast.error(msg, error.response?.status === 400 ? t('mediation.traders.useDeactivateInstead') || 'Use "Deactivate" if the trader has offers or deals.' : '');
     }
   };
 

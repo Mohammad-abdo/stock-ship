@@ -602,6 +602,7 @@
       "deactivate": "Deactivate",
       "delete": "Delete",
       "deleteConfirm": "Are you sure you want to delete this trader? This action cannot be undone.",
+      "useDeactivateInstead": "Use \"Deactivate\" if the trader has offers or deals.",
       "noTraders": "No traders found",
       "loading": "Loading traders...",
       "search": "Search traders...",

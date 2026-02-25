@@ -369,6 +369,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/stockship/admin/traders/:id/edit"
+        element={
+          <MultiProtectedRoute requireAdmin>
+            <StockshipAdminLayout>
+              <AdminCreateTrader />
+            </StockshipAdminLayout>
+          </MultiProtectedRoute>
+        }
+      />
+      <Route
         path="/stockship/admin/offers"
         element={
           <MultiProtectedRoute requireAdmin>
