@@ -14,15 +14,18 @@ export default function AppLogo({ className = '', imgClassName = '', showTagline
 
   useEffect(() => {
     let cancelled = false;
-    fetch(PUBLIC_SETTINGS_URL)
-      .then((res) => res.ok ? res.json() : null)
+    fetch(PUBLIC_SETTINGS_URL, { method: 'GET' })
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
       .then((data) => {
         if (cancelled) return;
         const payload = data?.data ?? data;
         if (payload?.logoUrl) setLogoUrl(payload.logoUrl);
-        if (payload?.platformName) setPlatformName(payload.platformName);
+        if (payload?.platformName) setPlatformName(payload.platformName || 'Stockship');
       })
-      .catch(() => {})
+      .catch(() => { /* use defaults */ })
       .finally(() => {
         if (!cancelled) setLoaded(true);
       });

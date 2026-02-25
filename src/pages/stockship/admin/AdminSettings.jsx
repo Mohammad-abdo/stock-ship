@@ -188,9 +188,12 @@ const AdminSettings = () => {
       }
     } catch (error) {
       console.error('Error saving settings:', error);
+      const msg = error.response?.data?.message || error.message || '';
       showToast.error(
         t('admin.settings.saveFailed') || 'Failed to save settings',
-        error.response?.data?.message || 'Please try again'
+        msg || (error.response?.status === 500
+          ? 'Server error. Ensure backend is updated and migrations are run (e.g. PlatformSettings table).'
+          : 'Please try again')
       );
     } finally {
       setSaving(false);
