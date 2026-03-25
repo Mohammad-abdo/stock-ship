@@ -8,6 +8,7 @@ import { VendorProvider } from "./components/VendorProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MultiProtectedRoute } from "./components/MultiProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import FloatingScrollNav from "./components/FloatingScrollNav";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import ModeratorLogin from "./pages/ModeratorLogin";
@@ -1542,6 +1543,7 @@ function App() {
               <MultiAuthProvider>
                 <VendorProvider>
                   <AppRoutes />
+                  <FloatingScrollNav />
                 </VendorProvider>
               </MultiAuthProvider>
             </AuthProvider>
