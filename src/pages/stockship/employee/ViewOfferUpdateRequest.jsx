@@ -240,46 +240,46 @@ const ViewOfferUpdateRequest = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Header */}
-      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
-        <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('/stockship/employee/offer-update-requests')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-          </motion.button>
-          <div className={isRTL ? 'text-right' : 'text-left'}>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {t('mediation.offers.updateRequest.title') || 'Offer Update Request'}
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              {offer?.title || 'N/A'}
-            </p>
+      <div className="space-y-4">
+        <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+          <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/stockship/employee/offer-update-requests')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+            </motion.button>
+            <div className={isRTL ? 'text-right' : 'text-left'}>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {t('mediation.offers.updateRequest.title') || 'Offer Update Request'}
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                {offer?.title || 'N/A'}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {getStatusBadge(request.status)}
-          {canReview && (
-            <>
-              <Button
-                onClick={handleApprove}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                {t('common.approve') || 'Approve'}
-              </Button>
-              <Button
-                onClick={handleReject}
-                variant="destructive"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                {t('common.reject') || 'Reject'}
-              </Button>
-            </>
-          )}
         </div>
+        {canReview && (
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              onClick={handleApprove}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('common.approve') || 'Approve'}
+            </Button>
+            <Button
+              onClick={handleReject}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <XCircle className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('common.reject') || 'Reject'}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Request Info */}

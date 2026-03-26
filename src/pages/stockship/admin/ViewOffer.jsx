@@ -19,7 +19,11 @@ import {
   DollarSign,
   Download,
   FileSpreadsheet,
-  Loader2
+  Loader2,
+  AlertTriangle,
+  Eye,
+  ThumbsUp,
+  ThumbsDown
 } from 'lucide-react';
 import showToast from '@/lib/toast';
 import { countries, getFlagUrl } from '@/data/countries';
@@ -63,6 +67,9 @@ const ViewOffer = () => {
   const { t, language, isRTL } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState(null);
+  const [reviewing, setReviewing] = useState(false);
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   useEffect(() => {
     fetchOffer();
@@ -112,12 +119,11 @@ const ViewOffer = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.active') || 'Active', icon: CheckCircle },
+      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.published') || 'Published', icon: CheckCircle },
       DRAFT: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.draft') || 'Draft', icon: FileText },
-      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.pendingValidation') || 'Pending Validation', icon: Calendar },
+      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.underReview') || 'Under Review', icon: Eye },
       VALIDATED: { bg: 'bg-blue-100', text: 'text-blue-800', label: t('mediation.offers.validated') || 'Validated', icon: CheckCircle },
       REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.offers.rejected') || 'Rejected', icon: XCircle },
-      EXPIRED: { bg: 'bg-orange-100', text: 'text-orange-800', label: t('mediation.offers.expired') || 'Expired', icon: Calendar },
       CLOSED: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.closed') || 'Closed', icon: XCircle }
     };
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || t('common.unknown') || 'Unknown', icon: FileText };
@@ -573,6 +579,113 @@ const ViewOffer = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Rejection Reason Alert */}
+          {offer.status === 'REJECTED' && offer.rejectionReason && (
+            <Card className="border-red-200 shadow-sm bg-red-50">
+              <CardContent className="pt-6">
+                <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className={isRTL ? 'text-right' : 'text-left'}>
+                    <h3 className="font-semibold text-red-800 mb-1">{t('mediation.offers.rejectionReason') || 'Rejection Reason'}</h3>
+                    <p className="text-sm text-red-700 whitespace-pre-wrap">{offer.rejectionReason}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Admin Review Actions */}
+          {(offer.status === 'PENDING_VALIDATION' || offer.status === 'DRAFT') && (
+            <Card className="border-yellow-200 shadow-sm">
+              <CardHeader className="border-b border-yellow-200 bg-yellow-50">
+                <CardTitle className={`flex items-center gap-2 text-lg font-semibold ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <Eye className="w-5 h-5 text-yellow-600" />
+                  {t('mediation.offers.reviewActions') || 'Review Actions'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                {!showRejectForm ? (
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm(t('mediation.offers.confirmPublish') || 'Are you sure you want to publish this offer?')) return;
+                        try {
+                          setReviewing(true);
+                          await adminApi.reviewOffer(offer.id, { approved: true });
+                          showToast.success(t('mediation.offers.published') || 'Published', t('mediation.offers.publishSuccess') || 'Offer has been published');
+                          fetchOffer();
+                        } catch (error) {
+                          showToast.error('Error', error.response?.data?.message || 'Failed to publish offer');
+                        } finally {
+                          setReviewing(false);
+                        }
+                      }}
+                      disabled={reviewing}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-medium"
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      {reviewing ? (t('common.loading') || 'Loading...') : (t('mediation.offers.approve') || 'Approve & Publish')}
+                    </button>
+                    <button
+                      onClick={() => setShowRejectForm(true)}
+                      disabled={reviewing}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 font-medium"
+                    >
+                      <ThumbsDown className="w-4 h-4" />
+                      {t('mediation.offers.reject') || 'Reject'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t('mediation.offers.rejectionReason') || 'Rejection Reason'} <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300 resize-none text-sm"
+                      placeholder={t('mediation.offers.rejectionReasonPlaceholder') || 'Please explain why this offer is being rejected...'}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          if (!rejectionReason.trim()) {
+                            showToast.error('Error', t('mediation.offers.rejectionReasonRequired') || 'Please provide a rejection reason');
+                            return;
+                          }
+                          try {
+                            setReviewing(true);
+                            await adminApi.reviewOffer(offer.id, { approved: false, rejectionReason: rejectionReason.trim() });
+                            showToast.success(t('mediation.offers.rejected') || 'Rejected', t('mediation.offers.rejectSuccess') || 'Offer has been rejected');
+                            setShowRejectForm(false);
+                            setRejectionReason('');
+                            fetchOffer();
+                          } catch (error) {
+                            showToast.error('Error', error.response?.data?.message || 'Failed to reject offer');
+                          } finally {
+                            setReviewing(false);
+                          }
+                        }}
+                        disabled={reviewing || !rejectionReason.trim()}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm font-medium"
+                      >
+                        {reviewing ? (t('common.loading') || 'Loading...') : (t('mediation.offers.confirmReject') || 'Confirm Rejection')}
+                      </button>
+                      <button
+                        onClick={() => { setShowRejectForm(false); setRejectionReason(''); }}
+                        disabled={reviewing}
+                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                      >
+                        {t('common.cancel') || 'Cancel'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Trader in sidebar (مختصر) */}
           {offer.trader && (

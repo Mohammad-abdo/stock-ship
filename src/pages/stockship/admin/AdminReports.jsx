@@ -47,8 +47,8 @@ const AdminReports = () => {
   const reportTypes = useMemo(() => [
     {
       id: 'deals',
-      name: t('mediation.reports.deals'),
-      description: t('mediation.reports.dealsDesc'),
+      name: t('mediation.reports.deals') || 'الصفقات',
+      description: 'تقرير بجميع صفقات المنصة وحالتها',
       icon: ShoppingCart,
       category: 'transactions',
       color: 'bg-blue-50 text-blue-600',
@@ -58,33 +58,33 @@ const AdminReports = () => {
       filters: ['status', 'dateRange']
     },
     {
-      id: 'traders',
-      name: t('mediation.reports.traders'),
-      description: t('mediation.reports.tradersDesc'),
-      icon: Store,
-      category: 'entities',
-      color: 'bg-green-50 text-green-600',
-      iconBg: 'bg-green-100',
+      id: 'negotiations',
+      name: 'التفاوض',
+      description: 'تقرير رسائل وعروض التفاوض بين البائع والمشتري',
+      icon: FileText,
+      category: 'transactions',
+      color: 'bg-yellow-50 text-yellow-600',
+      iconBg: 'bg-yellow-100',
       lastGenerated: null,
       recordCount: 0,
       filters: ['status', 'dateRange']
     },
     {
-      id: 'employees',
-      name: t('mediation.reports.employees'),
-      description: t('mediation.reports.employeesDesc'),
-      icon: Briefcase,
-      category: 'entities',
-      color: 'bg-purple-50 text-purple-600',
-      iconBg: 'bg-purple-100',
+      id: 'commission',
+      name: t('mediation.reports.commission') || 'العمولات',
+      description: 'تقرير العمولات المستحقة للمنصة والموظفين',
+      icon: TrendingUp,
+      category: 'financial',
+      color: 'bg-emerald-50 text-emerald-600',
+      iconBg: 'bg-emerald-100',
       lastGenerated: null,
       recordCount: 0,
       filters: ['status', 'dateRange']
     },
     {
-      id: 'clients',
-      name: t('mediation.reports.clients'),
-      description: t('mediation.reports.clientsDesc'),
+      id: 'users',
+      name: 'تسجيل المستخدمين',
+      description: 'تقرير تسجيلات المستخدمين (طلاب منتجات، تجار، موظفين)',
       icon: Users,
       category: 'entities',
       color: 'bg-indigo-50 text-indigo-600',
@@ -92,54 +92,6 @@ const AdminReports = () => {
       lastGenerated: null,
       recordCount: 0,
       filters: ['status', 'dateRange']
-    },
-    {
-      id: 'offers',
-      name: t('mediation.reports.offers'),
-      description: t('mediation.reports.offersDesc'),
-      icon: Package,
-      category: 'entities',
-      color: 'bg-orange-50 text-orange-600',
-      iconBg: 'bg-orange-100',
-      lastGenerated: null,
-      recordCount: 0,
-      filters: ['status', 'dateRange']
-    },
-    {
-      id: 'payments',
-      name: t('mediation.reports.payments'),
-      description: t('mediation.reports.paymentsDesc'),
-      icon: CreditCard,
-      category: 'transactions',
-      color: 'bg-cyan-50 text-cyan-600',
-      iconBg: 'bg-cyan-100',
-      lastGenerated: null,
-      recordCount: 0,
-      filters: ['status', 'method', 'dateRange']
-    },
-    {
-      id: 'revenue',
-      name: t('mediation.reports.revenue'),
-      description: t('mediation.reports.revenueDesc'),
-      icon: DollarSign,
-      category: 'financial',
-      color: 'bg-emerald-50 text-emerald-600',
-      iconBg: 'bg-emerald-100',
-      lastGenerated: null,
-      recordCount: 0,
-      filters: ['dateRange']
-    },
-    {
-      id: 'commission',
-      name: t('mediation.reports.commission'),
-      description: t('mediation.reports.commissionDesc'),
-      icon: TrendingUp,
-      category: 'financial',
-      color: 'bg-pink-50 text-pink-600',
-      iconBg: 'bg-pink-100',
-      lastGenerated: null,
-      recordCount: 0,
-      filters: ['dateRange', 'employee']
     }
   ], [t]);
 
@@ -181,11 +133,8 @@ const AdminReports = () => {
       setGenerating(true);
       showToast.info(t('mediation.reports.generating'), t('mediation.reports.pleaseWait'));
 
-      // TODO: Call backend API to generate report
-      // const response = await adminApi.generateReport(selectedReport.id, reportFilters);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await adminApi.generateReport(selectedReport.id, reportFilters);
+      const generatedData = response.data?.data;
 
       // Update report with new generation time
       setReports(prev => prev.map(r => 
@@ -201,9 +150,8 @@ const AdminReports = () => {
       
       setShowGenerateModal(false);
       
-      // Navigate to view the generated report
       navigate(`/stockship/admin/reports/${selectedReport.id}/view`, {
-        state: { filters: reportFilters }
+        state: { filters: reportFilters, generatedData: generatedData }
       });
     } catch (error) {
       console.error('Error generating report:', error);
@@ -233,11 +181,9 @@ const AdminReports = () => {
   const getStatusOptions = (reportId) => {
     const statusMap = {
       deals: ['NEGOTIATION', 'APPROVED', 'PAID', 'SETTLED', 'CANCELLED'],
-      traders: ['ACTIVE', 'INACTIVE', 'VERIFIED', 'UNVERIFIED'],
-      employees: ['ACTIVE', 'INACTIVE'],
-      clients: ['ACTIVE', 'INACTIVE'],
-      offers: ['DRAFT', 'PENDING', 'VALIDATED', 'REJECTED', 'EXPIRED'],
-      payments: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED']
+      negotiations: ['NEGOTIATION', 'APPROVED', 'PAID', 'SETTLED', 'CANCELLED'],
+      users: ['ACTIVE', 'INACTIVE'],
+      commission: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED']
     };
     return statusMap[reportId] || [];
   };

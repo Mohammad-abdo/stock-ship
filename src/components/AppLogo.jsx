@@ -32,7 +32,7 @@ export default function AppLogo({ className = '', imgClassName = '', showTagline
     return () => { cancelled = true; };
   }, []);
 
-  const fullLogoUrl = logoUrl?.startsWith('http') ? logoUrl : `${API_BASE}${logoUrl || ''}`;
+  const fullLogoUrl = logoUrl ? (logoUrl.startsWith('http') ? logoUrl : `${API_BASE}${logoUrl}`) : null;
 
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>

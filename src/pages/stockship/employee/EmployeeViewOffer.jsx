@@ -280,11 +280,10 @@ const EmployeeViewOffer = () => {
   const getStatusBadge = (status) => {
     const statusConfig = {
       DRAFT: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.draft') || 'Draft', icon: FileText },
-      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.pendingValidation') || 'Pending Validation', icon: Clock },
-      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.active') || 'Active', icon: CheckCircle },
+      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.underReview') || 'Under Review', icon: Clock },
+      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.published') || 'Published', icon: CheckCircle },
       CLOSED: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.closed') || 'Closed', icon: XCircle },
-      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.offers.rejected') || 'Rejected', icon: XCircle },
-      INACTIVE: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.inactive') || 'Inactive', icon: Package }
+      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.offers.rejected') || 'Rejected', icon: XCircle }
     };
     const config = statusConfig[status] || statusConfig.DRAFT;
     const Icon = config.icon;
@@ -1059,6 +1058,14 @@ const EmployeeViewOffer = () => {
                     {t('mediation.employee.validationNotes') || 'Validation Notes'}
                   </label>
                   <p className="text-sm text-gray-900 whitespace-pre-wrap">{offer.validationNotes}</p>
+                </div>
+              )}
+              {offer.status === 'REJECTED' && offer.rejectionReason && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <label className="text-sm font-medium text-red-800 block mb-1">
+                    {t('mediation.offers.rejectionReason') || 'Rejection Reason'}
+                  </label>
+                  <p className="text-sm text-red-700 whitespace-pre-wrap">{offer.rejectionReason}</p>
                 </div>
               )}
             </CardContent>

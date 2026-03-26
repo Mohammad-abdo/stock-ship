@@ -126,10 +126,11 @@ const EmployeeOffers = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.pendingValidation') || 'Pending Validation', icon: Clock },
-      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.active') || 'Active', icon: CheckCircle },
+      DRAFT: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.draft') || 'Draft', icon: FileText },
+      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.underReview') || 'Under Review', icon: Clock },
+      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.published') || 'Published', icon: CheckCircle },
       REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.offers.rejected') || 'Rejected', icon: XCircle },
-      INACTIVE: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.inactive') || 'Inactive', icon: Package }
+      CLOSED: { bg: 'bg-gray-200', text: 'text-gray-800', label: t('mediation.offers.closed') || 'Closed', icon: Package }
     };
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status || 'Unknown', icon: Package };
     const Icon = config.icon;
@@ -274,10 +275,11 @@ const EmployeeOffers = () => {
                 className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 bg-white appearance-none min-w-[200px]"
               >
                 <option value="">{t('mediation.offers.allStatus') || 'All Status'}</option>
-                <option value="PENDING_VALIDATION">{t('mediation.offers.pendingValidation') || 'Pending Validation'}</option>
-                <option value="ACTIVE">{t('mediation.offers.active') || 'Active'}</option>
+                <option value="DRAFT">{t('mediation.offers.draft') || 'Draft'}</option>
+                <option value="PENDING_VALIDATION">{t('mediation.offers.underReview') || 'Under Review'}</option>
+                <option value="ACTIVE">{t('mediation.offers.published') || 'Published'}</option>
                 <option value="REJECTED">{t('mediation.offers.rejected') || 'Rejected'}</option>
-                <option value="INACTIVE">{t('mediation.offers.inactive') || 'Inactive'}</option>
+                <option value="CLOSED">{t('mediation.offers.closed') || 'Closed'}</option>
               </select>
             </div>
             {statusFilter && (

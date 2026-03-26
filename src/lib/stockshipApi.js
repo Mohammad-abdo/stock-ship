@@ -122,6 +122,9 @@ export const adminApi = {
   // Dashboard
   getDashboardStats: () => stockshipApi.get("/admin/dashboard/stats"),
   
+  // Reports
+  generateReport: (type, params) => stockshipApi.get("/admin/reports/generate", { params: { type, ...params } }),
+  
   // Users
   getUsers: (params) => stockshipApi.get("/admin/users", { params }),
   getUser: (id) => stockshipApi.get(`/admin/users/${id}`),
@@ -136,6 +139,13 @@ export const adminApi = {
   createEmployee: (data) => stockshipApi.post("/admin/employees", data),
   updateEmployee: (id, data) => stockshipApi.put(`/admin/employees/${id}`, data),
   
+  // Roles & Permissions
+  getRoles: () => stockshipApi.get("/admin/roles"),
+  createRole: (data) => stockshipApi.post("/admin/roles", data),
+  updateRole: (id, data) => stockshipApi.put(`/admin/roles/${id}`, data),
+  deleteRole: (id) => stockshipApi.delete(`/admin/roles/${id}`),
+  assignRole: (id, data) => stockshipApi.post(`/admin/roles/${id}/assign`, data),
+  
   // Traders (Mediation Platform)
   getTraders: (params) => stockshipApi.get("/admin/traders", { params }),
   getTrader: (id) => stockshipApi.get(`/traders/${id}`),
@@ -147,6 +157,7 @@ export const adminApi = {
   // Offers (Mediation Platform)
   getOffers: (params) => stockshipApi.get("/admin/offers", { params }),
   getOffer: (id) => stockshipApi.get(`/offers/${id}`),
+  reviewOffer: (id, data) => stockshipApi.put(`/admin/offers/${id}/review`, data),
   
   // Platform Settings
   getPlatformSettings: () => stockshipApi.get("/admin/platform-settings"),

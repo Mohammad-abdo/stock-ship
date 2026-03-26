@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { adminApi } from '@/lib/stockshipApi';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, User, Mail, Phone, DollarSign } from 'lucide-react';
+import { ArrowLeft, Save, User, Mail, Phone, DollarSign, Shield } from 'lucide-react';
 import showToast from '@/lib/toast';
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     phone: '',
-    commissionRate: 1.0
+    commissionRate: 1.0,
+    roleId: ''
   });
+
+  useEffect(() => {
+    const loadRoles = async () => {
+      try {
+        const response = await adminApi.getRoles();
+        setRoles(response.data.data || response.data || []);
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    };
+    loadRoles();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -148,6 +162,27 @@ const CreateEmployee = () => {
                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder={t('mediation.employees.phonePlaceholder')}
                   />
+                </div>
+              </div>
+
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('mediation.roles.role') || 'Role'}
+                </label>
+                <div className="relative">
+                  <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <select
+                    name="roleId"
+                    value={formData.roleId}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white appearance-none"
+                  >
+                    <option value="">{t('mediation.roles.selectRole') || '-- Select Custom Role (Optional) --'}</option>
+                    {roles.map(role => (
+                      <option key={role.id} value={role.id}>{role.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
