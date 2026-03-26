@@ -117,6 +117,8 @@ const AdminVideoAds = () => {
                     <th className="text-left p-4">{t('videoAds.video')}</th>
                     <th className="text-left p-4">{t('videoAds.titleLabel')}</th>
                     <th className="text-left p-4">{t('videoAds.description')}</th>
+                    <th className="text-left p-4">{t('videoAds.columnRail')}</th>
+                    <th className="text-left p-4">{t('videoAds.columnKind')}</th>
                     <th className="text-left p-4">{t('common.views') || 'Views'}</th>
                     <th className="text-left p-4">{t('videoAds.order')}</th>
                     <th className="text-left p-4">{t('videoAds.status')}</th>
@@ -160,6 +162,16 @@ const AdminVideoAds = () => {
                         <div className="text-sm text-gray-600 max-w-xs truncate">
                           {ad.descriptionAr || ad.descriptionEn || 'No description'}
                         </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm font-medium">
+                          {ad.railPosition === 'RIGHT' ? t('videoAds.railRight') : t('videoAds.railLeft')}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm">
+                          {ad.contentKind === 'SPONSOR' ? t('videoAds.kindSponsor') : t('videoAds.kindAd')}
+                        </span>
                       </td>
                       <td className="p-4">{ad.views || 0}</td>
                       <td className="p-4">{ad.displayOrder || 0}</td>

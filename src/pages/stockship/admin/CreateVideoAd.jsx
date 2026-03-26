@@ -30,7 +30,9 @@ const CreateVideoAd = () => {
     thumbnailUrl: '',
     linkUrl: '',
     displayOrder: 0,
-    isActive: true
+    isActive: true,
+    railPosition: 'LEFT',
+    contentKind: 'AD'
   });
 
   const handleVideoUpload = async (file) => {
@@ -289,6 +291,32 @@ const CreateVideoAd = () => {
 
             {activeTab === 'settings' && (
               <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('videoAds.railPosition')}</label>
+                    <select
+                      value={formData.railPosition}
+                      onChange={(e) => setFormData({ ...formData, railPosition: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                    >
+                      <option value="LEFT">{t('videoAds.railLeft')}</option>
+                      <option value="RIGHT">{t('videoAds.railRight')}</option>
+                    </select>
+                    <p className="text-xs text-muted-foreground mt-1">{t('videoAds.railPositionHelp')}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('videoAds.contentKind')}</label>
+                    <select
+                      value={formData.contentKind}
+                      onChange={(e) => setFormData({ ...formData, contentKind: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                    >
+                      <option value="AD">{t('videoAds.kindAd')}</option>
+                      <option value="SPONSOR">{t('videoAds.kindSponsor')}</option>
+                    </select>
+                    <p className="text-xs text-muted-foreground mt-1">{t('videoAds.contentKindHelp')}</p>
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('videoAds.create.linkUrl')}</label>
                   <input
