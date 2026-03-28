@@ -179,7 +179,8 @@ const ViewDeal = () => {
       RETURNED: t('mediation.deals.shippingStatus.returned') || 'Returned',
       CANCELLED: t('mediation.deals.shippingStatus.cancelled') || 'Cancelled'
     };
-    return statusMap[status] || status.replace('_', ' ');
+    if (!status) return 'Unknown';
+    return statusMap[status] || String(status).replace(/_/g, ' ');
   };
 
   const handleAssignShipping = async () => {

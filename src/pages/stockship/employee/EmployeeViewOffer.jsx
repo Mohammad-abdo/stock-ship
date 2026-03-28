@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { offerApi } from '@/lib/mediationApi';
 import showToast from '@/lib/toast';
+import { validateOfferExcelFile } from '@/utils/offerExcelClientValidate';
 
 // LightGallery functionality
 import LightGallery from 'lightgallery/react';
@@ -255,6 +256,19 @@ const EmployeeViewOffer = () => {
       return;
     }
 
+    const clientValidation = await validateOfferExcelFile(file);
+    if (!clientValidation.ok) {
+      const [first, ...rest] = clientValidation.errors;
+      showToast.error(
+        first || (t('mediation.offers.uploadFailed') || 'Failed to upload file'),
+        rest.length > 0 ? rest.join(' ') : undefined
+      );
+      if (excelFileInputRef.current) {
+        excelFileInputRef.current.value = '';
+      }
+      return;
+    }
+
     try {
       setUploadingExcel(true);
       await offerApi.uploadOfferExcelEmployee(offer.id, file);
@@ -265,10 +279,20 @@ const EmployeeViewOffer = () => {
       await fetchOffer();
     } catch (error) {
       console.error('Error uploading Excel:', error);
-      showToast.error(
-        t('mediation.offers.uploadFailed') || 'Failed to upload file',
-        error.response?.data?.message || 'Please try again'
-      );
+      const data = error.response?.data;
+      const message =
+        data?.message ||
+        (t('mediation.offers.uploadFailed') || 'Failed to upload file');
+      const detailParts = [];
+      if (Array.isArray(data?.errors)) {
+        detailParts.push(...data.errors.filter(Boolean));
+      }
+      if (data?.error && typeof data.error === 'string') {
+        detailParts.push(data.error);
+      }
+      const description =
+        detailParts.length > 0 ? [...new Set(detailParts)].join(' ') : undefined;
+      showToast.error(message, description);
     } finally {
       setUploadingExcel(false);
       if (excelFileInputRef.current) {

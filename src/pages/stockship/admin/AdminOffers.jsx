@@ -15,6 +15,14 @@ const AdminOffers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minQuantity, setMinQuantity] = useState('');
+  const [maxQuantity, setMaxQuantity] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [negotiationFilter, setNegotiationFilter] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -35,7 +43,15 @@ const AdminOffers = () => {
         page: pagination.page,
         limit: pagination.limit,
         ...(statusFilter && { status: statusFilter }),
-        ...(searchTerm && { search: searchTerm })
+        ...(searchTerm && { search: searchTerm }),
+        ...(minPrice !== '' && { minPrice }),
+        ...(maxPrice !== '' && { maxPrice }),
+        ...(minQuantity !== '' && { minQuantity }),
+        ...(maxQuantity !== '' && { maxQuantity }),
+        ...(countryFilter && { country: countryFilter }),
+        ...(dateFrom && { dateFrom }),
+        ...(dateTo && { dateTo }),
+        ...(negotiationFilter && { acceptsNegotiation: negotiationFilter })
       };
       const response = await adminApi.getOffers(params);
       const data = response.data?.data || response.data || [];
@@ -58,7 +74,20 @@ const AdminOffers = () => {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, [pagination.page, pagination.limit, statusFilter, searchTerm]);
+  }, [
+    pagination.page,
+    pagination.limit,
+    statusFilter,
+    searchTerm,
+    minPrice,
+    maxPrice,
+    minQuantity,
+    maxQuantity,
+    countryFilter,
+    dateFrom,
+    dateTo,
+    negotiationFilter
+  ]);
 
   // Debounce search term and status filter to avoid too many requests
   useEffect(() => {
@@ -83,7 +112,18 @@ const AdminOffers = () => {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTerm, statusFilter]); // Only depend on search/filter changes
+  }, [
+    searchTerm,
+    statusFilter,
+    minPrice,
+    maxPrice,
+    minQuantity,
+    maxQuantity,
+    countryFilter,
+    dateFrom,
+    dateTo,
+    negotiationFilter
+  ]); // Only depend on search/filter changes
 
   // Fetch when page changes (but not if search/filter is changing)
   useEffect(() => {
@@ -209,7 +249,7 @@ const AdminOffers = () => {
       {/* Filters */}
       <Card className="border-gray-200 shadow-sm">
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
             <div className="relative">
               <input
                 type="text"
@@ -237,10 +277,106 @@ const AdminOffers = () => {
               <option value="REJECTED">Rejected</option>
               <option value="CLOSED">Closed</option>
             </select>
+            <input
+              type="text"
+              placeholder="Country"
+              value={countryFilter}
+              onChange={(e) => {
+                setCountryFilter(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <select
+              value={negotiationFilter}
+              onChange={(e) => {
+                setNegotiationFilter(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            >
+              <option value="">Negotiation: All</option>
+              <option value="true">Negotiable</option>
+              <option value="false">Not negotiable</option>
+            </select>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Min price"
+              value={minPrice}
+              onChange={(e) => {
+                setMinPrice(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Max price"
+              value={maxPrice}
+              onChange={(e) => {
+                setMaxPrice(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Min quantity"
+              value={minQuantity}
+              onChange={(e) => {
+                setMinQuantity(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Max quantity"
+              value={maxQuantity}
+              onChange={(e) => {
+                setMaxQuantity(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => {
+                setDateFrom(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => {
+                setDateTo(e.target.value);
+                setPagination(prev => ({ ...prev, page: 1 }));
+              }}
+              className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+            />
             <button
               onClick={() => {
                 setSearchTerm('');
                 setStatusFilter('');
+                setMinPrice('');
+                setMaxPrice('');
+                setMinQuantity('');
+                setMaxQuantity('');
+                setCountryFilter('');
+                setDateFrom('');
+                setDateTo('');
+                setNegotiationFilter('');
                 setPagination(prev => ({ ...prev, page: 1 }));
               }}
               className="px-4 py-2 text-sm border border-gray-200 rounded-md bg-white hover:bg-gray-50 transition-colors"

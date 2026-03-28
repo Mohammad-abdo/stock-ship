@@ -74,6 +74,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // FormData: let the browser set multipart boundary (do not force Content-Type)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
@@ -288,12 +294,8 @@ export const offerApi = {
   // Upload Excel file (Trader)
   uploadOfferExcel: (offerId, file) => {
     const formData = new FormData();
-    formData.append('excelFile', file);
-    return api.post(`${BASE_URL}/traders/offers/${offerId}/upload-excel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    formData.append('excelFile', file, file.name || 'upload.xlsx');
+    return api.post(`${BASE_URL}/traders/offers/${offerId}/upload-excel`, formData);
   },
 
   // Validate offer (Employee)
@@ -309,12 +311,8 @@ export const offerApi = {
   // Upload Excel file (Employee)
   uploadOfferExcelEmployee: (offerId, file) => {
     const formData = new FormData();
-    formData.append('excelFile', file);
-    return api.post(`${BASE_URL}/employees/offers/${offerId}/upload-excel`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    formData.append('excelFile', file, file.name || 'upload.xlsx');
+    return api.post(`${BASE_URL}/employees/offers/${offerId}/upload-excel`, formData);
   },
 
   // Get Employee's Offers
