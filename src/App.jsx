@@ -227,7 +227,11 @@ function AppRoutes() {
     <Routes>
       <Route
         path="/login"
-        element={<Navigate to="/admin/login" replace />}
+        element={<Login />}
+      />
+      <Route
+        path="/multi-login"
+        element={<Login />}
       />
       <Route
         path="/admin/login"

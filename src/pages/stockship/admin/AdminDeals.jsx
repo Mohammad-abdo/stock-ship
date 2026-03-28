@@ -46,8 +46,18 @@ const AdminDeals = () => {
         }));
       }
     } catch (error) {
-      console.error('Error fetching deals:', error);
-      showToast.error('Failed to fetch deals', error.response?.data?.message || 'Please try again');
+      const statusCode = error?.response?.status;
+      const backendMessage = error?.response?.data?.message;
+      const fallbackMessage = error?.message || 'Please try again';
+      console.error('Error fetching deals:', {
+        statusCode,
+        backendMessage,
+        error
+      });
+      showToast.error(
+        `Failed to fetch deals${statusCode ? ` (${statusCode})` : ''}`,
+        backendMessage || fallbackMessage
+      );
       setDeals([]);
     } finally {
       setLoading(false);
