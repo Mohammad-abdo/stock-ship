@@ -85,6 +85,10 @@ export const MultiAuthProvider = ({ children }) => {
   // Login function that stores by role
   const login = async (email, password, requestedRole = null, rememberMe = false) => {
     try {
+      // CLEAR ALL EXISTING SESSIONS FIRST
+      // This enforces that only one role can be logged in at a time
+      logout(); 
+      
       // Send role parameter to backend for explicit role-based login
       const requestBody = { email, password, rememberMe: !!rememberMe };
       if (requestedRole) {
@@ -188,58 +192,6 @@ export const MultiAuthProvider = ({ children }) => {
         ...auths,
         [roleKey]: { user: { ...selectedUser, userType: selectedUserRole }, token: selectedToken }
       };
-
-      // Handle linked profiles and multiple roles - store ALL available roles
-      if (responseData.roleTokens) {
-        for (const [roleType, roleToken] of Object.entries(responseData.roleTokens)) {
-          const linkedRoleKey = normalizeRole(roleType);
-          if (linkedRoleKey && linkedRoleKey !== roleKey) {
-            // Find the profile data for this role
-            const linkedProfile = responseData.roleProfiles?.[roleType] || 
-                                responseData.linkedProfiles?.find(
-                                  p => p.userType === roleType
-                                ) ||
-                                (roleType === primaryUser.userType ? primaryUser : null);
-            
-            if (linkedProfile) {
-              const linkedTokenKey = `${linkedRoleKey}_token`;
-              const linkedUserKey = `${linkedRoleKey}_user`;
-              
-              localStorage.setItem(linkedTokenKey, roleToken);
-              localStorage.setItem(linkedUserKey, JSON.stringify(linkedProfile));
-              
-              updatedAuths[linkedRoleKey] = { 
-                user: linkedProfile, 
-                token: roleToken 
-              };
-            }
-          }
-        }
-      } else if (responseData.availableRoles && responseData.availableRoles.length > 1) {
-        // Fallback: Multiple roles available but no separate tokens
-        for (const availableRole of responseData.availableRoles) {
-          const linkedRoleKey = normalizeRole(availableRole);
-          if (linkedRoleKey && linkedRoleKey !== roleKey) {
-            const linkedProfile = responseData.linkedProfiles?.find(
-              p => p.userType === availableRole
-            ) || (availableRole === primaryUser.userType ? primaryUser : null);
-            
-            if (linkedProfile) {
-              const linkedTokenKey = `${linkedRoleKey}_token`;
-              const linkedUserKey = `${linkedRoleKey}_user`;
-              
-              // Use primary token for linked roles if no separate token
-              localStorage.setItem(linkedTokenKey, primaryToken);
-              localStorage.setItem(linkedUserKey, JSON.stringify(linkedProfile));
-              
-              updatedAuths[linkedRoleKey] = { 
-                user: linkedProfile, 
-                token: primaryToken 
-              };
-            }
-          }
-        }
-      }
 
       setAuths(updatedAuths);
 

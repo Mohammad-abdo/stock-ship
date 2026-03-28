@@ -22,7 +22,7 @@ export default function TraderLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, setActiveRole } = useMultiAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -176,6 +176,36 @@ export default function TraderLogin() {
               className="mt-6 text-center text-sm text-muted-foreground"
             >
               <p className="text-xs">Trader: trader@stokship.com / password</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mt-6 pt-4 border-t border-border/50 text-center"
+            >
+              <button
+                onClick={() => navigate("/")}
+                className="text-purple-500 hover:text-purple-600 font-medium transition-colors inline-flex items-center gap-2"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="rtl:rotate-180"
+                >
+                  <path
+                    d="M19 12H5M5 12L12 19M5 12L12 5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {language === 'ar' ? 'تغيير الدور' : 'Change Role'}
+              </button>
             </motion.div>
           </CardContent>
         </Card>

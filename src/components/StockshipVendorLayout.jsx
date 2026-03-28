@@ -25,6 +25,7 @@ import {
   Sun,
   User,
 } from "lucide-react";
+import { DashboardFooter } from "./DashboardFooter";
 
 const StockshipVendorLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -163,6 +164,7 @@ const StockshipVendorLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <DashboardFooter />
       </div>
 
       {/* Mobile Menu Overlay */}

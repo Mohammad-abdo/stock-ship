@@ -21,6 +21,7 @@ import {
   Folder,
   UserCheck,
 } from "lucide-react";
+import { DashboardFooter } from "./DashboardFooter";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -126,6 +127,7 @@ export default function Layout({ children }) {
               {children}
             </motion.div>
           </main>
+          <DashboardFooter />
         </div>
       </div>
     </div>

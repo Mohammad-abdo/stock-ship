@@ -3,11 +3,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import RoleSwitcher from "./RoleSwitcher";
 import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
 import AppLogo from "./AppLogo";
+import { DashboardFooter } from "./DashboardFooter";
 import {
   LayoutDashboard,
   Users,
@@ -194,7 +194,6 @@ const StockshipAdminLayout = ({ children }) => {
           </div>
 
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <RoleSwitcher />
             <ProfileStatusBadge />
             <NotificationsDropdown />
             <LanguageToggle />
@@ -203,6 +202,7 @@ const StockshipAdminLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">{children}</main>
+        <DashboardFooter />
       </div>
 
       {/* Mobile Menu Overlay */}

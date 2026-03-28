@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import RoleSwitcher from "./RoleSwitcher";
 import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
 import AppLogo from "./AppLogo";
+import { DashboardFooter } from "./DashboardFooter";
 import {
   LayoutDashboard,
   Users,
@@ -162,13 +162,13 @@ export default function StockshipModeratorLayout({ children }) {
             </h1>
           </div>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-             <RoleSwitcher />
              <ProfileStatusBadge />
              <NotificationsDropdown />
              <LanguageToggle />
           </div>
         </header>
         <main className="flex-1 overflow-y-auto bg-gray-50">{children}</main>
+        <DashboardFooter />
       </div>
     </div>
   );
