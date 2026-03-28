@@ -8,6 +8,7 @@ import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
 import AppLogo from "./AppLogo";
+import { DashboardFooter } from "./DashboardFooter";
 import {
   LayoutDashboard,
   Users,
@@ -200,6 +201,7 @@ const StockshipAdminLayout = ({ children }) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">{children}</main>
+        <DashboardFooter />
       </div>
 
       {/* Mobile Menu Overlay */}

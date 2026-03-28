@@ -7,6 +7,7 @@ import ProfileStatusBadge from "./ProfileStatusBadge";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
 import AppLogo from "./AppLogo";
+import { DashboardFooter } from "./DashboardFooter";
 import {
   LayoutDashboard,
   Users,
@@ -185,6 +186,7 @@ export default function StockshipEmployeeLayout({ children }) {
           </div>
         </header>
         <main className="flex-1 overflow-y-auto bg-gray-50">{children}</main>
+        <DashboardFooter />
       </div>
     </div>
   );
