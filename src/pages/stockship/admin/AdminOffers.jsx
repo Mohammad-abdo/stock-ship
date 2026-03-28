@@ -134,12 +134,11 @@ const AdminOffers = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      ACTIVE: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Active' },
+      ACTIVE: { bg: 'bg-green-100', text: 'text-green-700', label: 'Published' },
       DRAFT: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Draft' },
-      PENDING: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Pending' },
-      VALIDATED: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Validated' },
-      REJECTED: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Rejected' },
-      EXPIRED: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Expired' }
+      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Under Review' },
+      REJECTED: { bg: 'bg-red-100', text: 'text-red-700', label: 'Rejected' },
+      CLOSED: { bg: 'bg-gray-200', text: 'text-gray-600', label: 'Closed' }
     };
     const config = statusConfig[status] || statusConfig.DRAFT;
     return (
@@ -272,12 +271,11 @@ const AdminOffers = () => {
               className="px-4 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
             >
               <option value="">{t('mediation.deals.allStatus')}</option>
-              <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
-              <option value="PENDING">Pending</option>
-              <option value="VALIDATED">Validated</option>
+              <option value="PENDING_VALIDATION">Under Review</option>
+              <option value="ACTIVE">Published</option>
               <option value="REJECTED">Rejected</option>
-              <option value="EXPIRED">Expired</option>
+              <option value="CLOSED">Closed</option>
             </select>
             <input
               type="text"

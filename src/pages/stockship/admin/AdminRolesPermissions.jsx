@@ -45,6 +45,13 @@ const AdminRolesPermissions = () => {
     action: ''
   });
 
+  // Assign Users State
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedAssignRole, setSelectedAssignRole] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
+
   // Default roles for mediation platform
   const defaultRoles = [
     {
@@ -100,45 +107,41 @@ const AdminRolesPermissions = () => {
   useEffect(() => {
     fetchRoles();
     fetchPermissions();
+    fetchEmployees();
   }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      setLoadingEmployees(true);
+      const res = await adminApi.getEmployees({ limit: 1000, isActive: true });
+      const empList = res.data?.data?.data || res.data?.data || [];
+      setEmployees(empList);
+    } catch (e) {
+      console.error('Error fetching employees:', e);
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
 
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API endpoint when available
-      // const response = await adminApi.getRoles();
-      // setRoles(response.data.data || response.data || []);
-      
-      // Use default roles for now
-      setRoles(defaultRoles);
+      const response = await adminApi.getRoles();
+      setRoles(response.data.data || response.data || []);
     } catch (error) {
       console.error('Error fetching roles:', error);
       showToast.error(
         t('mediation.roles.loadFailed') || 'Failed to fetch roles',
         error.response?.data?.message || t('mediation.roles.tryAgain') || 'Please try again'
       );
-      setRoles(defaultRoles);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchPermissions = async () => {
-    try {
-      // TODO: Replace with actual API endpoint when available
-      // const response = await adminApi.getPermissions();
-      // setPermissions(response.data.data || response.data || []);
-      
-      // Use default permissions for now
-      setPermissions(defaultPermissions);
-    } catch (error) {
-      console.error('Error fetching permissions:', error);
-      showToast.error(
-        t('mediation.permissions.loadFailed') || 'Failed to fetch permissions',
-        error.response?.data?.message || t('mediation.permissions.tryAgain') || 'Please try again'
-      );
-      setPermissions(defaultPermissions);
-    }
+    // Simply set the system default permissions
+    setPermissions(defaultPermissions);
   };
 
   const handleCreateRole = () => {
@@ -149,6 +152,37 @@ const AdminRolesPermissions = () => {
       permissions: []
     });
     setShowRoleModal(true);
+  };
+
+  const handleOpenAssign = (role) => {
+    setSelectedAssignRole(role);
+    // Find employees who currently have this role
+    const currentHolders = employees.filter(emp => emp.role?.id === role.id).map(emp => emp.id);
+    setSelectedEmployeeIds(currentHolders);
+    setShowAssignModal(true);
+  };
+
+  const handleAssignSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSaving(true);
+      await adminApi.assignRole(selectedAssignRole.id, { employeeIds: selectedEmployeeIds });
+      showToast.success('Users Assigned', 'Users have been assigned to this role successfully');
+      setShowAssignModal(false);
+      fetchRoles();
+      fetchEmployees(); // Refresh roles assigned to employees
+    } catch (error) {
+      console.error('Error assigning role:', error);
+      showToast.error('Assignment Failed', error.response?.data?.message || 'Please try again');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleEmployee = (empId) => {
+    setSelectedEmployeeIds(prev => 
+      prev.includes(empId) ? prev.filter(id => id !== empId) : [...prev, empId]
+    );
   };
 
   const handleEditRole = (role) => {
@@ -187,38 +221,15 @@ const AdminRolesPermissions = () => {
     e.preventDefault();
     try {
       setSaving(true);
-      // TODO: Replace with actual API endpoint
-      // if (editingRole) {
-      //   await adminApi.updateRole(editingRole.id, roleFormData);
-      //   showToast.success(t('mediation.roles.updated'), t('mediation.roles.updateSuccess'));
-      // } else {
-      //   await adminApi.createRole(roleFormData);
-      //   showToast.success(t('mediation.roles.created'), t('mediation.roles.createSuccess'));
-      // }
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       if (editingRole) {
-        setRoles(prev => prev.map(r => r.id === editingRole.id ? { ...r, ...roleFormData } : r));
-        showToast.success(
-          t('mediation.roles.updated') || 'Role updated',
-          t('mediation.roles.updateSuccess') || 'The role has been updated successfully'
-        );
+        await adminApi.updateRole(editingRole.id, roleFormData);
+        showToast.success(t('mediation.roles.updated') || 'Role updated', t('mediation.roles.updateSuccess') || '');
       } else {
-        const newRole = {
-          id: roles.length + 1,
-          ...roleFormData,
-          users: 0,
-          createdAt: new Date().toISOString()
-        };
-        setRoles(prev => [...prev, newRole]);
-        showToast.success(
-          t('mediation.roles.created') || 'Role created',
-          t('mediation.roles.createSuccess') || 'The role has been created successfully'
-        );
+        await adminApi.createRole(roleFormData);
+        showToast.success(t('mediation.roles.created') || 'Role created', t('mediation.roles.createSuccess') || '');
       }
       
+      fetchRoles();
       setShowRoleModal(false);
       setEditingRole(null);
     } catch (error) {
@@ -234,58 +245,15 @@ const AdminRolesPermissions = () => {
 
   const handlePermissionSubmit = async (e) => {
     e.preventDefault();
-    try {
-      setSaving(true);
-      // TODO: Replace with actual API endpoint
-      // if (editingPermission) {
-      //   await adminApi.updatePermission(editingPermission.id, permissionFormData);
-      //   showToast.success(t('mediation.permissions.updated'), t('mediation.permissions.updateSuccess'));
-      // } else {
-      //   await adminApi.createPermission(permissionFormData);
-      //   showToast.success(t('mediation.permissions.created'), t('mediation.permissions.createSuccess'));
-      // }
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (editingPermission) {
-        setPermissions(prev => prev.map(p => p.id === editingPermission.id ? { ...p, ...permissionFormData } : p));
-        showToast.success(
-          t('mediation.permissions.updated') || 'Permission updated',
-          t('mediation.permissions.updateSuccess') || 'The permission has been updated successfully'
-        );
-      } else {
-        const newPermission = {
-          id: permissions.length + 1,
-          ...permissionFormData
-        };
-        setPermissions(prev => [...prev, newPermission]);
-        showToast.success(
-          t('mediation.permissions.created') || 'Permission created',
-          t('mediation.permissions.createSuccess') || 'The permission has been created successfully'
-        );
-      }
-      
-      setShowPermissionModal(false);
-      setEditingPermission(null);
-    } catch (error) {
-      console.error('Error saving permission:', error);
-      showToast.error(
-        t('mediation.permissions.saveFailed') || 'Failed to save permission',
-        error.response?.data?.message || t('mediation.permissions.tryAgain') || 'Please try again'
-      );
-    } finally {
-      setSaving(false);
-    }
+    showToast.error('System Notice', 'Creating custom permissions is disabled. Please compose Roles using the provided System Permissions.');
+    setShowPermissionModal(false);
   };
 
   const handleDeleteRole = async (id) => {
     if (!window.confirm(t('mediation.roles.deleteConfirm') || 'Are you sure you want to delete this role?')) return;
     try {
-      // TODO: Replace with actual API endpoint
-      // await adminApi.deleteRole(id);
-      
-      setRoles(prev => prev.filter(r => r.id !== id));
+      await adminApi.deleteRole(id);
+      fetchRoles();
       showToast.success(
         t('mediation.roles.deleted') || 'Role deleted',
         t('mediation.roles.deleteSuccess') || 'The role has been deleted'
@@ -300,23 +268,7 @@ const AdminRolesPermissions = () => {
   };
 
   const handleDeletePermission = async (id) => {
-    if (!window.confirm(t('mediation.permissions.deleteConfirm') || 'Are you sure you want to delete this permission?')) return;
-    try {
-      // TODO: Replace with actual API endpoint
-      // await adminApi.deletePermission(id);
-      
-      setPermissions(prev => prev.filter(p => p.id !== id));
-      showToast.success(
-        t('mediation.permissions.deleted') || 'Permission deleted',
-        t('mediation.permissions.deleteSuccess') || 'The permission has been deleted'
-      );
-    } catch (error) {
-      console.error('Error deleting permission:', error);
-      showToast.error(
-        t('mediation.permissions.deleteFailed') || 'Failed to delete permission',
-        error.response?.data?.message || t('mediation.permissions.tryAgain') || 'Please try again'
-      );
-    }
+    showToast.error('System Notice', 'Deleting system permissions is not allowed. They are required by the backend API guards.');
   };
 
   const togglePermission = (permissionId) => {
@@ -415,51 +367,48 @@ const AdminRolesPermissions = () => {
 
   const roleRowActions = (row) => (
     <div className="flex items-center gap-1 justify-end">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleEditRole(row);
-        }}
-        className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-        title={t('mediation.common.edit') || 'Edit'}
-      >
-        <Edit className="w-4 h-4 text-gray-600" />
-      </button>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteRole(row.id);
-        }}
-        className="p-1.5 hover:bg-red-100 rounded transition-colors"
-        title={t('mediation.common.delete') || 'Delete'}
-      >
-        <Trash2 className="w-4 h-4 text-red-600" />
-      </button>
+      {row.isSystem ? (
+        <span className="text-xs text-gray-400 italic px-2">System Role</span>
+      ) : (
+        <>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenAssign(row);
+            }}
+            className="p-1.5 hover:bg-blue-100 rounded transition-colors"
+            title={t('mediation.roles.users') || 'Assign Users'}
+          >
+            <Users className="w-4 h-4 text-blue-600" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditRole(row);
+            }}
+            className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+            title={t('mediation.common.edit') || 'Edit'}
+          >
+            <Edit className="w-4 h-4 text-gray-600" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteRole(row.id);
+            }}
+            className="p-1.5 hover:bg-red-100 rounded transition-colors"
+            title={t('mediation.common.delete') || 'Delete'}
+          >
+            <Trash2 className="w-4 h-4 text-red-600" />
+          </button>
+        </>
+      )}
     </div>
   );
 
   const permissionRowActions = (row) => (
     <div className="flex items-center gap-1 justify-end">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleEditPermission(row);
-        }}
-        className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-        title={t('mediation.common.edit') || 'Edit'}
-      >
-        <Edit className="w-4 h-4 text-gray-600" />
-      </button>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeletePermission(row.id);
-        }}
-        className="p-1.5 hover:bg-red-100 rounded transition-colors"
-        title={t('mediation.common.delete') || 'Delete'}
-      >
-        <Trash2 className="w-4 h-4 text-red-600" />
-      </button>
+      <span className="text-xs text-gray-400 italic px-2">System Required</span>
     </div>
   );
 
@@ -487,18 +436,17 @@ const AdminRolesPermissions = () => {
           <h1 className="text-3xl font-bold text-gray-900">{t('mediation.roles.title') || 'Roles & Permissions'}</h1>
           <p className="text-muted-foreground mt-2">{t('mediation.roles.subtitle') || 'Manage user roles and permissions'}</p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={activeTab === 'roles' ? handleCreateRole : handleCreatePermission}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          {activeTab === 'roles' 
-            ? (t('mediation.roles.addRole') || 'Add Role')
-            : (t('mediation.permissions.addPermission') || 'Add Permission')
-          }
-        </motion.button>
+        {activeTab === 'roles' && (
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleCreateRole}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {(t('mediation.roles.addRole') || 'Add Role')}
+          </motion.button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -717,6 +665,111 @@ const AdminRolesPermissions = () => {
                       </>
                     )}
                   </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Assign Users Modal */}
+      <AnimatePresence>
+        {showAssignModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => !saving && setShowAssignModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Assign Users
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Role: <span className="font-semibold text-gray-900">{selectedAssignRole?.name}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => !saving && setShowAssignModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  disabled={saving}
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAssignSubmit} className="p-6 space-y-4">
+                <div className="border border-gray-200 rounded-lg p-4 max-h-80 overflow-y-auto bg-gray-50">
+                  {loadingEmployees ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                    </div>
+                  ) : employees.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-4">No active employees found</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {employees.map(emp => (
+                        <label
+                          key={emp.id}
+                          className="flex items-center gap-3 p-3 hover:bg-white rounded-lg border border-transparent hover:border-gray-200 cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedEmployeeIds.includes(emp.id)}
+                            onChange={() => toggleEmployee(emp.id)}
+                            disabled={saving}
+                            className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-300"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-900">{emp.name}</span>
+                            <span className="text-xs text-gray-500 ml-2">({emp.email})</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <span className="text-sm text-gray-500">
+                    Selected: <span className="font-semibold text-gray-900">{selectedEmployeeIds.length}</span>
+                  </span>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowAssignModal(false)}
+                      disabled={saving}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      {t('common.cancel') || 'Cancel'}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving || loadingEmployees}
+                      className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          Save Assignments
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </form>
             </motion.div>

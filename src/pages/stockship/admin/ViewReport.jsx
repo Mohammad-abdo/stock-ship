@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import StandardDataTable from '@/components/StandardDataTable';
@@ -28,17 +28,28 @@ const ViewReport = () => {
     status: ''
   });
 
+  const location = useLocation();
+
   useEffect(() => {
-    fetchReportData();
+    // If we have state from the caller and filters haven't changed, use it
+    if (location.state?.generatedData && !Object.values(filters).some(v => v)) {
+      setReportData(location.state.generatedData.results);
+      setReportInfo(location.state.generatedData.info);
+      setLoading(false);
+    } else {
+      fetchReportData();
+    }
   }, [id, filters]);
 
   const fetchReportData = async () => {
     try {
       setLoading(true);
-      // Mock data based on report type
-      const mockData = generateMockReportData(id);
-      setReportData(mockData.data);
-      setReportInfo(mockData.info);
+      const response = await adminApi.generateReport(id, filters);
+      const generatedData = response.data?.data;
+      if (generatedData) {
+        setReportData(generatedData.results);
+        setReportInfo(generatedData.info);
+      }
     } catch (error) {
       console.error('Error fetching report data:', error);
       showToast.error(t('mediation.reports.loadFailed'), error.response?.data?.message || t('mediation.reports.tryAgain'));
@@ -47,119 +58,53 @@ const ViewReport = () => {
     }
   };
 
-  const generateMockReportData = (reportId) => {
+  const getReportColumns = (reportId) => {
     const reportConfigs = {
       deals: {
-        info: {
-          name: t('mediation.reports.deals'),
-          description: t('mediation.reports.dealsDesc'),
-          totalRecords: 25,
-          generatedAt: new Date().toISOString()
-        },
         columns: [
-          { key: 'dealNumber', label: t('mediation.deals.dealNumber') },
-          { key: 'trader', label: t('mediation.deals.trader') },
-          { key: 'client', label: t('mediation.deals.client') },
-          { key: 'amount', label: t('mediation.deals.negotiatedAmount'), align: 'right' },
-          { key: 'status', label: t('mediation.common.status') },
-          { key: 'createdAt', label: t('mediation.deals.created') }
-        ],
-        data: Array.from({ length: 25 }, (_, i) => ({
-          id: i + 1,
-          dealNumber: `DEAL-${String(i + 1).padStart(4, '0')}`,
-          trader: `Trader ${i + 1}`,
-          client: `Client ${i + 1}`,
-          amount: (Math.random() * 100000).toFixed(2),
-          status: ['NEGOTIATION', 'APPROVED', 'PAID', 'SETTLED'][Math.floor(Math.random() * 4)],
-          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
-        }))
+          { key: 'dealNumber', label: t('mediation.deals.dealNumber') || 'رقم الصفقة' },
+          { key: 'trader', label: t('mediation.deals.trader') || 'التاجر' },
+          { key: 'client', label: t('mediation.deals.client') || 'العميل' },
+          { key: 'amount', label: t('mediation.deals.negotiatedAmount') || 'المبلغ', align: 'right' },
+          { key: 'status', label: t('mediation.common.status') || 'الحالة' },
+          { key: 'createdAt', label: t('mediation.deals.created') || 'التاريخ' }
+        ]
       },
-      traders: {
-        info: {
-          name: t('mediation.reports.traders'),
-          description: t('mediation.reports.tradersDesc'),
-          totalRecords: 15,
-          generatedAt: new Date().toISOString()
-        },
+      negotiations: {
         columns: [
-          { key: 'code', label: t('mediation.traders.traderCode') },
-          { key: 'companyName', label: t('mediation.traders.companyName') },
-          { key: 'email', label: t('mediation.common.email') },
-          { key: 'phone', label: t('mediation.common.phone') },
-          { key: 'status', label: t('mediation.common.status') },
-          { key: 'offers', label: t('mediation.traders.offers'), align: 'right' }
-        ],
-        data: Array.from({ length: 15 }, (_, i) => ({
-          id: i + 1,
-          code: `TRD-${String(i + 1).padStart(4, '0')}`,
-          companyName: `Company ${i + 1}`,
-          email: `trader${i + 1}@example.com`,
-          phone: `+966${Math.floor(Math.random() * 1000000000)}`,
-          status: Math.random() > 0.5 ? 'ACTIVE' : 'INACTIVE',
-          offers: Math.floor(Math.random() * 50)
-        }))
+          { key: 'dealNumber', label: 'رقم الصفقة' },
+          { key: 'senderType', label: 'المرسل' },
+          { key: 'messageType', label: 'نوع الرسالة' },
+          { key: 'proposedPrice', label: 'السعر المقترح', align: 'right' },
+          { key: 'proposedQuantity', label: 'الكمية المقترحة', align: 'right' },
+          { key: 'status', label: 'حالة الصفقة' },
+          { key: 'createdAt', label: 'تاريخ الرسالة' }
+        ]
       },
-      employees: {
-        info: {
-          name: t('mediation.reports.employees'),
-          description: t('mediation.reports.employeesDesc'),
-          totalRecords: 8,
-          generatedAt: new Date().toISOString()
-        },
+      commission: {
         columns: [
-          { key: 'code', label: t('mediation.employees.employeeCode') },
-          { key: 'name', label: t('mediation.employees.name') },
-          { key: 'email', label: t('mediation.common.email') },
-          { key: 'commissionRate', label: t('mediation.employees.commissionRate'), align: 'right' },
-          { key: 'traders', label: t('mediation.employees.traders'), align: 'right' },
-          { key: 'status', label: t('mediation.common.status') }
-        ],
-        data: Array.from({ length: 8 }, (_, i) => ({
-          id: i + 1,
-          code: `EMP-${String(i + 1).padStart(4, '0')}`,
-          name: `Employee ${i + 1}`,
-          email: `employee${i + 1}@example.com`,
-          commissionRate: (Math.random() * 5).toFixed(2),
-          traders: Math.floor(Math.random() * 20),
-          status: 'ACTIVE'
-        }))
+          { key: 'dealNumber', label: 'رقم الصفقة' },
+          { key: 'totalAmount', label: 'المبلغ الإجمالي', align: 'right' },
+          { key: 'platformCommission', label: 'عمولة المنصة', align: 'right' },
+          { key: 'employeeCommission', label: 'عمولة الموظف', align: 'right' },
+          { key: 'employeeName', label: 'اسم الموظف' },
+          { key: 'status', label: 'الحالة' },
+          { key: 'createdAt', label: 'التاريخ' }
+        ]
       },
-      payments: {
-        info: {
-          name: t('mediation.reports.payments'),
-          description: t('mediation.reports.paymentsDesc'),
-          totalRecords: 42,
-          generatedAt: new Date().toISOString()
-        },
+      users: {
         columns: [
-          { key: 'id', label: t('mediation.common.id') },
-          { key: 'dealNumber', label: t('mediation.deals.dealNumber') },
-          { key: 'amount', label: t('mediation.viewPayment.amount'), align: 'right' },
-          { key: 'method', label: t('mediation.viewPayment.method') },
-          { key: 'status', label: t('mediation.common.status') },
-          { key: 'createdAt', label: t('mediation.viewPayment.createdAt') }
-        ],
-        data: Array.from({ length: 42 }, (_, i) => ({
-          id: i + 1,
-          dealNumber: `DEAL-${String(i + 1).padStart(4, '0')}`,
-          amount: (Math.random() * 50000).toFixed(2),
-          method: ['BANK_CARD', 'BANK_TRANSFER'][Math.floor(Math.random() * 2)],
-          status: ['PENDING', 'COMPLETED', 'FAILED'][Math.floor(Math.random() * 3)],
-          createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
-        }))
+          { key: 'name', label: 'الاسم/الشركة' },
+          { key: 'email', label: 'البريد الإلكتروني' },
+          { key: 'phone', label: 'رقم الهاتف' },
+          { key: 'userType', label: 'نوع المستخدم' },
+          { key: 'status', label: 'الحالة' },
+          { key: 'createdAt', label: 'تاريخ التسجيل' }
+        ]
       }
     };
 
-    return reportConfigs[reportId] || {
-      info: {
-        name: t('mediation.reports.unknown'),
-        description: '',
-        totalRecords: 0,
-        generatedAt: new Date().toISOString()
-      },
-      columns: [],
-      data: []
-    };
+    return reportConfigs[reportId]?.columns || [];
   };
 
   const handleDownload = async (format) => {
@@ -175,7 +120,7 @@ const ViewReport = () => {
     }
   };
 
-  const columns = reportInfo?.columns?.map(col => ({
+  const columns = getReportColumns(id).map(col => ({
     ...col,
     render: (value, row) => {
       if (col.key === 'status') {
@@ -196,10 +141,10 @@ const ViewReport = () => {
           </span>
         );
       }
-      if (col.key === 'amount' || col.key === 'commissionRate') {
+      if (col.key === 'amount' || col.key === 'commissionRate' || col.key === 'proposedPrice' || col.key === 'totalAmount' || col.key === 'platformCommission' || col.key === 'employeeCommission') {
         return (
           <span className="text-sm font-medium">
-            {col.key === 'amount' ? `${Number(value).toLocaleString()} SAR` : `${value}%`}
+            {col.key.toLowerCase().includes('rate') ? `${value}%` : `${Number(value || 0).toLocaleString()} SAR`}
           </span>
         );
       }

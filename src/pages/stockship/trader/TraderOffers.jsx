@@ -220,8 +220,8 @@ const TraderOffers = () => {
   const getStatusBadge = (status) => {
     const statusConfig = {
       DRAFT: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.draft') || 'Draft', icon: FileText },
-      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.pending') || 'Pending', icon: Clock },
-      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.active') || 'Active', icon: CheckCircle },
+      PENDING_VALIDATION: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.offers.underReview') || 'Under Review', icon: Clock },
+      ACTIVE: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.offers.published') || 'Published', icon: CheckCircle },
       CLOSED: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.offers.closed') || 'Closed', icon: XCircle },
       REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.offers.rejected') || 'Rejected', icon: XCircle }
     };
@@ -444,7 +444,7 @@ const TraderOffers = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t('mediation.offers.active') || 'Active'}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('mediation.offers.published') || 'Published'}</p>
                 <p className="text-2xl font-bold text-green-600">{stats.active}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -457,7 +457,7 @@ const TraderOffers = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{t('mediation.offers.pending') || 'Pending'}</p>
+                <p className="text-sm text-gray-600 mb-1">{t('mediation.offers.underReview') || 'Under Review'}</p>
                 <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -542,8 +542,8 @@ const TraderOffers = () => {
             >
               <option value="">{t('allStatuses') || 'All Statuses'}</option>
               <option value="DRAFT">{t('mediation.offers.draft') || 'Draft'}</option>
-              <option value="PENDING_VALIDATION">{t('mediation.offers.pending') || 'Pending'}</option>
-              <option value="ACTIVE">{t('mediation.offers.active') || 'Active'}</option>
+              <option value="PENDING_VALIDATION">{t('mediation.offers.underReview') || 'Under Review'}</option>
+              <option value="ACTIVE">{t('mediation.offers.published') || 'Published'}</option>
               <option value="CLOSED">{t('mediation.offers.closed') || 'Closed'}</option>
               <option value="REJECTED">{t('mediation.offers.rejected') || 'Rejected'}</option>
             </select>

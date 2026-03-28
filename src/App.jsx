@@ -158,7 +158,7 @@ import ClientViewDeal from "./pages/stockship/client/ClientViewDeal";
 import ClientDealQuotePage from "./pages/stockship/client/ClientDealQuotePage";
 import ClientDeals from "./pages/stockship/client/ClientDeals";
 import ClientSettings from "./pages/stockship/client/ClientSettings";
-import LandingPage from "./pages/LandingPage";
+import RoleSelectionPage from "./pages/RoleSelectionPage";
 import PublicViewOffer from "./pages/PublicViewOffer";
 
 
@@ -1529,7 +1529,7 @@ function AppRoutes() {
       <Route path="/403" element={<Forbidden />} />
 
       {/* Root Landing Page */}
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<RoleSelectionPage />} />
       <Route path="/offers/:id" element={<PublicViewOffer />} />
       {/* <Route path="/" element={<Navigate to="/multi-login" replace />} /> */}
       <Route path="*" element={<NotFound />} />
