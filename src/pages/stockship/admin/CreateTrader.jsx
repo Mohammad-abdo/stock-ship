@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { adminApi } from '@/lib/stockshipApi';
 import { uploadApi } from '@/lib/mediationApi';
@@ -26,8 +26,14 @@ import { CountrySearchSelect } from '@/components/CountrySearchSelect';
 
 const CreateTrader = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const editMatch = location.pathname.match(/\/admin\/traders\/([^/]+)\/edit\/?$/);
+  const traderId = editMatch ? editMatch[1] : undefined;
+  const isEdit = Boolean(traderId);
   const { t, isRTL } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(isEdit);
+  const [initialEmployeeId, setInitialEmployeeId] = useState('');
   const [uploadingDocs, setUploadingDocs] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -71,6 +77,66 @@ const CreateTrader = () => {
     };
     loadEmployees();
   }, [t]);
+
+  const loadTraderForEdit = useCallback(async () => {
+    if (!traderId) return;
+    try {
+      const response = await adminApi.getTrader(traderId);
+      const raw = response.data?.data ?? response.data;
+      const trader = raw?.id ? raw : null;
+      if (!trader) {
+        showToast.error(
+          t('mediation.employee.loadTraderFailed') || 'Failed to load trader',
+          t('common.tryAgain') || 'Try again'
+        );
+        navigate('/stockship/admin/traders');
+        return;
+      }
+      let docs = [];
+      if (Array.isArray(trader.documents)) docs = trader.documents;
+      else if (trader.documents && typeof trader.documents === 'string') {
+        try {
+          const parsed = JSON.parse(trader.documents);
+          if (Array.isArray(parsed)) docs = parsed;
+        } catch {
+          docs = [];
+        }
+      }
+      setDocuments(docs);
+      setInitialEmployeeId(trader.employeeId || '');
+      setFormData({
+        employeeId: trader.employeeId || '',
+        email: trader.email || '',
+        password: '',
+        name: trader.name || '',
+        companyName: trader.companyName || '',
+        phone: trader.phone || '',
+        countryCode: trader.countryCode || '',
+        country: trader.country || '',
+        city: trader.city || '',
+        companyAddress: trader.companyAddress || '',
+        bankAccountName: trader.bankAccountName || '',
+        bankAccountNumber: trader.bankAccountNumber || '',
+        bankName: trader.bankName || '',
+        bankAddress: trader.bankAddress || '',
+        bankCode: trader.bankCode || '',
+        swiftCode: trader.swiftCode || ''
+      });
+    } catch (err) {
+      console.error('Load trader for edit:', err);
+      showToast.error(
+        t('mediation.employee.loadTraderFailed') || 'Failed to load trader',
+        err.response?.data?.message || t('common.tryAgain')
+      );
+      navigate('/stockship/admin/traders');
+    } finally {
+      setInitialLoad(false);
+    }
+  }, [traderId, navigate, t]);
+
+  useEffect(() => {
+    if (isEdit) loadTraderForEdit();
+  }, [isEdit, loadTraderForEdit]);
 
   const handleDocumentUpload = async (e) => {
     const files = e.target.files;
@@ -141,9 +207,13 @@ const CreateTrader = () => {
     const err = {};
     if (!(formData.companyName || '').trim()) err.companyName = requiredMsg;
     if (!(formData.name || '').trim()) err.name = requiredMsg;
-    if (!(formData.email || '').trim()) err.email = requiredMsg;
-    if (!(formData.password || '').trim()) err.password = requiredMsg;
-    else if (formData.password.length < 6) err.password = t('mediation.employees.passwordMinLength') || 'Password must be at least 6 characters';
+    if (!isEdit) {
+      if (!(formData.email || '').trim()) err.email = requiredMsg;
+      if (!(formData.password || '').trim()) err.password = requiredMsg;
+      else if (formData.password.length < 6) err.password = t('mediation.employees.passwordMinLength') || 'Password must be at least 6 characters';
+    } else if (formData.password && formData.password.length < 6) {
+      err.password = t('mediation.employees.passwordMinLength') || 'Password must be at least 6 characters';
+    }
     return err;
   };
 
@@ -162,16 +232,51 @@ const CreateTrader = () => {
 
     try {
       setLoading(true);
-      await adminApi.createTrader({ ...formData, documents: documents.length ? documents : undefined });
-      showToast.success(
-        t('mediation.employee.traderCreated') || 'Trader Created',
-        t('mediation.employee.traderCreatedSuccess') || 'Trader has been registered successfully'
-      );
-      navigate('/stockship/admin/traders');
+      if (isEdit) {
+        const payload = {
+          name: (formData.name || '').trim(),
+          companyName: (formData.companyName || '').trim(),
+          phone: formData.phone || undefined,
+          countryCode: formData.countryCode || undefined,
+          country: formData.country || undefined,
+          city: formData.city || undefined,
+          companyAddress: formData.companyAddress || undefined,
+          bankAccountName: formData.bankAccountName || undefined,
+          bankAccountNumber: formData.bankAccountNumber || undefined,
+          bankName: formData.bankName || undefined,
+          bankAddress: formData.bankAddress || undefined,
+          bankCode: formData.bankCode || undefined,
+          swiftCode: formData.swiftCode || undefined,
+          documents: documents.length ? documents : []
+        };
+        if ((formData.password || '').trim()) {
+          payload.password = formData.password.trim();
+        }
+        await adminApi.updateTrader(traderId, payload);
+        const newEmp = (formData.employeeId || '').trim();
+        const oldEmp = (initialEmployeeId || '').trim();
+        if (newEmp && newEmp !== oldEmp) {
+          await adminApi.assignTraderToEmployee(traderId, newEmp);
+        }
+        showToast.success(
+          t('mediation.traders.traderUpdated'),
+          t('mediation.traders.traderUpdatedSuccess')
+        );
+        navigate(`/stockship/admin/traders/${traderId}/view`);
+      } else {
+        await adminApi.createTrader({ ...formData, documents: documents.length ? documents : undefined });
+        showToast.success(
+          t('mediation.employee.traderCreated') || 'Trader Created',
+          t('mediation.employee.traderCreatedSuccess') || 'Trader has been registered successfully'
+        );
+        navigate('/stockship/admin/traders');
+      }
     } catch (error) {
-      console.error('Error creating trader:', error);
+      console.error(isEdit ? 'Error updating trader:' : 'Error creating trader:', error);
       showToast.error(
-        t('mediation.employee.createFailed') || 'Failed to create trader',
+        isEdit
+          ? t('mediation.traders.traderUpdateFailed')
+          : (t('mediation.employee.createFailed') || 'Failed to create trader'),
         error.response?.data?.message || t('common.tryAgain')
       );
     } finally {
@@ -182,6 +287,17 @@ const CreateTrader = () => {
   const inputClass = 'w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary';
   const labelClass = 'block text-sm font-medium mb-2';
   const iconInputClass = 'w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary';
+
+  if (initialLoad) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh] p-6">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-muted-foreground">{t('mediation.employee.loading') || 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -200,8 +316,16 @@ const CreateTrader = () => {
           <ArrowLeft className="w-5 h-5" />
         </motion.button>
         <div>
-          <h1 className="text-3xl font-bold">{t('mediation.traders.createTrader') || 'Create Trader'}</h1>
-          <p className="text-muted-foreground mt-2">{t('mediation.traders.createTraderSubtitle') || 'Add a new trader and assign to an employee'}</p>
+          <h1 className="text-3xl font-bold">
+            {isEdit
+              ? (t('mediation.traders.editTrader') || 'Edit Trader')
+              : (t('mediation.traders.createTrader') || 'Create Trader')}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            {isEdit
+              ? (t('mediation.traders.editTraderSubtitleAdmin') || 'Update trader profile and assignment')
+              : (t('mediation.traders.createTraderSubtitle') || 'Add a new trader and assign to an employee')}
+          </p>
         </div>
       </div>
 
@@ -266,16 +390,44 @@ const CreateTrader = () => {
                 {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
               </div>
               <div>
-                <label className={labelClass}>{t('mediation.common.email')} <span className="text-red-500">*</span></label>
+                <label className={labelClass}>
+                  {t('mediation.common.email')}
+                  {!isEdit && <span className="text-red-500"> *</span>}
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`${iconInputClass} ${fieldErrors.email ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.common.emailPlaceholder')} />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    readOnly={isEdit}
+                    disabled={isEdit}
+                    className={`${iconInputClass} ${fieldErrors.email ? 'border-red-500 bg-red-50/50' : ''} ${isEdit ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={t('mediation.common.emailPlaceholder')}
+                  />
                 </div>
                 {fieldErrors.email && <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p>}
               </div>
               <div>
-                <label className={labelClass}>{t('common.password')} <span className="text-red-500">*</span></label>
-                <input type="password" name="password" value={formData.password} onChange={handleChange} minLength={6} className={`${inputClass} ${fieldErrors.password ? 'border-red-500 bg-red-50/50' : ''}`} placeholder={t('mediation.employees.passwordPlaceholder')} />
+                <label className={labelClass}>
+                  {t('common.password')}
+                  {!isEdit && <span className="text-red-500"> *</span>}
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  minLength={isEdit ? undefined : 6}
+                  autoComplete="new-password"
+                  className={`${inputClass} ${fieldErrors.password ? 'border-red-500 bg-red-50/50' : ''}`}
+                  placeholder={
+                    isEdit
+                      ? (t('mediation.traders.passwordLeaveBlank') || 'Leave blank to keep current password')
+                      : (t('mediation.employees.passwordPlaceholder') || '')
+                  }
+                />
                 {fieldErrors.password && <p className="mt-1 text-xs text-red-600">{fieldErrors.password}</p>}
               </div>
               <div>
@@ -459,12 +611,14 @@ const CreateTrader = () => {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {t('mediation.common.creating') || 'Creating...'}
+                {isEdit
+                  ? (t('mediation.common.saving') || 'Saving...')
+                  : (t('mediation.common.creating') || 'Creating...')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                {t('mediation.common.create') || 'Create'}
+                {isEdit ? (t('common.save') || 'Save') : (t('mediation.common.create') || 'Create')}
               </>
             )}
           </motion.button>

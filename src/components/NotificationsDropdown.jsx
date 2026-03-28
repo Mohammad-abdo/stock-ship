@@ -16,7 +16,8 @@ export default function NotificationsDropdown() {
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
   const lastFetchRef = useRef(0);
-  const isFetchingRef = useRef(false);
+  const listInFlightRef = useRef(false);
+  const countInFlightRef = useRef(false);
 
   useEffect(() => {
     const now = Date.now();
@@ -31,7 +32,7 @@ export default function NotificationsDropdown() {
     const interval = setInterval(() => {
       const now = Date.now();
       // Throttle: only fetch if last fetch was more than 2 seconds ago
-      if (now - lastFetchRef.current > 2000 && !isFetchingRef.current) {
+      if (now - lastFetchRef.current > 2000) {
         fetchUnreadCount();
         if (isOpen) {
           fetchNotifications();
@@ -57,11 +58,9 @@ export default function NotificationsDropdown() {
   }, [isOpen]);
 
   const fetchNotifications = async () => {
-    // Prevent multiple simultaneous requests
-    if (isFetchingRef.current) return;
-    
+    if (listInFlightRef.current) return;
     try {
-      isFetchingRef.current = true;
+      listInFlightRef.current = true;
       setLoading(true);
       const response = await stockshipApi.get('/notifications', { 
         params: { page: 1, limit: 10 } 
@@ -124,16 +123,14 @@ export default function NotificationsDropdown() {
       // Keep existing notifications on error (don't clear them)
     } finally {
       setLoading(false);
-      isFetchingRef.current = false;
+      listInFlightRef.current = false;
     }
   };
 
   const fetchUnreadCount = async () => {
-    // Prevent multiple simultaneous requests
-    if (isFetchingRef.current) return;
-    
+    if (countInFlightRef.current) return;
     try {
-      isFetchingRef.current = true;
+      countInFlightRef.current = true;
       const response = await stockshipApi.get('/notifications/unread-count');
       
       // Handle different response structures
@@ -157,7 +154,7 @@ export default function NotificationsDropdown() {
       }
       // Don't reset count on error - keep last known value
     } finally {
-      isFetchingRef.current = false;
+      countInFlightRef.current = false;
     }
   };
 

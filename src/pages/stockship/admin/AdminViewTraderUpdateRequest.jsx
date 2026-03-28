@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useMultiAuth } from '@/contexts/MultiAuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { 
@@ -19,23 +18,18 @@ import {
   Loader2,
   AlertCircle,
   Hash,
-  Edit2,
-  Save,
-  X
+  Edit2
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { employeeApi } from '@/lib/mediationApi';
+import { adminApi } from '@/lib/stockshipApi';
 import showToast from '@/lib/toast';
 
-const ViewTraderUpdateRequest = () => {
+const AdminViewTraderUpdateRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t, language, isRTL } = useLanguage();
-  const { getAuth } = useMultiAuth();
-  const { user } = getAuth('employee');
 
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState(null);
@@ -45,20 +39,20 @@ const ViewTraderUpdateRequest = () => {
   const [actionType, setActionType] = useState(null); // 'approve' or 'reject'
 
   useEffect(() => {
-    if (user?.id && id) {
+    if (id) {
       fetchUpdateRequest();
     }
-  }, [user?.id, id]);
+  }, [id]);
 
   const fetchUpdateRequest = async () => {
     try {
       setLoading(true);
-      const response = await employeeApi.getTraderUpdateRequestById(id);
+      const response = await adminApi.getTraderUpdateRequest(id);
       setRequest(response.data?.data || response.data);
     } catch (error) {
       console.error('Error fetching update request:', error);
       showToast.error(t('mediation.trader.updateRequest.loadFailed') || 'Failed to load update request');
-      navigate('/stockship/employee/trader-update-requests');
+      navigate('/stockship/admin/trader-update-requests');
     } finally {
       setLoading(false);
     }
@@ -85,19 +79,19 @@ const ViewTraderUpdateRequest = () => {
       setProcessing(true);
       
       if (actionType === 'approve') {
-        await employeeApi.approveTraderUpdateRequest(request.id, {
+        await adminApi.approveTraderUpdateRequest(request.id, {
           reviewNotes: reviewNotes.trim() || undefined
         });
         showToast.success(t('mediation.trader.updateRequest.approveSuccess'));
       } else {
-        await employeeApi.rejectTraderUpdateRequest(request.id, {
+        await adminApi.rejectTraderUpdateRequest(request.id, {
           reviewNotes: reviewNotes.trim()
         });
         showToast.success(t('mediation.trader.updateRequest.rejectSuccess'));
       }
       
       setShowConfirmModal(false);
-      navigate('/stockship/employee/trader-update-requests');
+      navigate('/stockship/admin/trader-update-requests');
     } catch (error) {
       console.error(`Error ${actionType}ing request:`, error);
       showToast.error(
@@ -182,7 +176,7 @@ const ViewTraderUpdateRequest = () => {
     return null;
   }
 
-  const canEmployeeReview = request.status === 'PENDING' && !request.submittedByEmployeeId;
+  const canReview = request.status === 'PENDING';
 
   const rawRequested = request.requestedData;
   const requestedData =
@@ -213,7 +207,7 @@ const ViewTraderUpdateRequest = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('/stockship/employee/trader-update-requests')}
+            onClick={() => navigate('/stockship/admin/trader-update-requests')}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
@@ -546,7 +540,7 @@ const ViewTraderUpdateRequest = () => {
           )}
 
           {/* Actions (if pending and employee may approve — trader-initiated only) */}
-          {canEmployeeReview && (
+          {canReview && (
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                 <CardTitle className="text-sm font-semibold">
@@ -671,6 +665,6 @@ const ViewTraderUpdateRequest = () => {
   );
 };
 
-export default ViewTraderUpdateRequest;
+export default AdminViewTraderUpdateRequest;
 
 

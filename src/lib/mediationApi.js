@@ -189,6 +189,11 @@ export const employeeApi = {
     return api.put(`${BASE_URL}/admin/trader-update-requests/${id}/reject`, data);
   },
 
+  /** Employee proposes trader profile changes; requires admin approval */
+  submitTraderUpdateRequestForTrader: (traderId, data) => {
+    return api.post(`${BASE_URL}/employees/traders/${traderId}/update-request`, data);
+  },
+
   // Offer update request functions (Employee/Admin)
   getAllOfferUpdateRequests: (params = {}) => {
     return api.get(`${BASE_URL}/admin/offer-update-requests`, { params });
@@ -229,6 +234,34 @@ export const employeeApi = {
 
   assignOfferSupportTicket: (id, data) => {
     return api.put(`${BASE_URL}/admin/offer-support-tickets/${id}/assign`, data);
+  },
+
+  // Clients with deals through my traders (deduped list + pagination)
+  getMyClients: (params = {}) => {
+    return api.get(`${BASE_URL}/employees/my-clients`, { params });
+  },
+  getEmployeeClient: (clientId) => {
+    return api.get(`${BASE_URL}/employees/clients/${clientId}`);
+  },
+
+  // Client profile update requests (employee submit → admin approves)
+  listClientProfileRequests: (params = {}) => {
+    return api.get(`${BASE_URL}/employees/client-profile-requests`, { params });
+  },
+  createClientProfileRequest: (data) => {
+    return api.post(`${BASE_URL}/employees/client-profile-requests`, data);
+  },
+  getClientProfileRequestById: (id) => {
+    return api.get(`${BASE_URL}/employees/client-profile-requests/${id}`);
+  },
+  updateClientProfileRequestDraft: (id, data) => {
+    return api.put(`${BASE_URL}/employees/client-profile-requests/${id}`, data);
+  },
+  submitClientProfileRequest: (id) => {
+    return api.post(`${BASE_URL}/employees/client-profile-requests/${id}/submit`);
+  },
+  cancelClientProfileRequestDraft: (id) => {
+    return api.delete(`${BASE_URL}/employees/client-profile-requests/${id}`);
   }
 };
 

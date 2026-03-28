@@ -158,7 +158,25 @@ export const adminApi = {
   getOffers: (params) => stockshipApi.get("/admin/offers", { params }),
   getOffer: (id) => stockshipApi.get(`/offers/${id}`),
   reviewOffer: (id, data) => stockshipApi.put(`/admin/offers/${id}/review`, data),
-  
+
+  // Client profile update requests (mediation — admin approves employee proposals)
+  listClientProfileRequests: (params) =>
+    stockshipApi.get('/admin/client-profile-requests', { params }),
+  getClientProfileRequest: (id) => stockshipApi.get(`/admin/client-profile-requests/${id}`),
+  approveClientProfileRequest: (id, data) =>
+    stockshipApi.put(`/admin/client-profile-requests/${id}/approve`, data),
+  rejectClientProfileRequest: (id, data) =>
+    stockshipApi.put(`/admin/client-profile-requests/${id}/reject`, data),
+
+  // Trader profile update requests (trader self-service + employee proposals; admin approves employee proposals)
+  listTraderUpdateRequests: (params) =>
+    stockshipApi.get('/admin/trader-update-requests', { params }),
+  getTraderUpdateRequest: (id) => stockshipApi.get(`/admin/trader-update-requests/${id}`),
+  approveTraderUpdateRequest: (id, data) =>
+    stockshipApi.put(`/admin/trader-update-requests/${id}/approve`, data),
+  rejectTraderUpdateRequest: (id, data) =>
+    stockshipApi.put(`/admin/trader-update-requests/${id}/reject`, data),
+
   // Platform Settings
   getPlatformSettings: () => stockshipApi.get("/admin/platform-settings"),
   updatePlatformSettings: (data) => stockshipApi.put("/admin/platform-settings", data),

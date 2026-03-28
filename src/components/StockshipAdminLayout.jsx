@@ -33,6 +33,7 @@ import {
   Truck,
   MapPin,
   Video,
+  UserCog,
 } from "lucide-react";
 
 const StockshipAdminLayout = ({ children }) => {
@@ -65,6 +66,8 @@ const StockshipAdminLayout = ({ children }) => {
     { icon: ImageIcon, label: t('sidebar.sliders') || 'Sliders', path: "/stockship/admin/sliders" },
     { icon: Video, label: t('sidebar.videoAds') || 'Video Ads', path: "/stockship/admin/video-ads" },
     { icon: Users, label: t('admin.users.users'), path: "/stockship/admin/users" },
+    { icon: UserCog, label: t('mediation.admin.clientProfileRequest.nav') || 'Client profile requests', path: "/stockship/admin/client-profile-requests" },
+    { icon: FileText, label: t('mediation.admin.traderUpdateRequests.nav') || 'Trader update requests', path: "/stockship/admin/trader-update-requests" },
     { icon: Gift, label: t('mediation.offers.title'), path: "/stockship/admin/offers" },
     { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/admin/deals" },
     { icon: Truck, label: t('sidebar.shippingCompanies') || 'Shipping Companies', path: "/stockship/admin/shipping-companies" },

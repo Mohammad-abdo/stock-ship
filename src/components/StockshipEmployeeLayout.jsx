@@ -26,6 +26,8 @@ import {
   Edit,
   Gift,
   MessageSquare,
+  UserCog,
+  Contact,
 } from "lucide-react";
 
 export default function StockshipEmployeeLayout({ children }) {
@@ -51,7 +53,9 @@ export default function StockshipEmployeeLayout({ children }) {
   const menuItems = [
     { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/employee/dashboard" },
     { icon: Users, label: t('mediation.employee.traders') || 'My Traders', path: "/stockship/employee/traders" },
+    { icon: Contact, label: t('mediation.employee.clientsList.nav') || 'My clients', path: "/stockship/employee/clients" },
     { icon: FileText, label: t('mediation.trader.updateRequest.reviewTitle') || 'Trader Update Requests', path: "/stockship/employee/trader-update-requests" },
+    { icon: UserCog, label: t('mediation.employee.clientProfileRequest.nav') || 'Client profile requests', path: "/stockship/employee/client-profile-requests" },
     { icon: Gift, label: t('mediation.offers.updateRequest.reviewTitle') || 'Offer Update Requests', path: "/stockship/employee/offer-update-requests" },
     { icon: MessageSquare, label: t('mediation.support.tickets') || 'Offer Support Tickets', path: "/stockship/employee/offer-support-tickets" },
     { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/employee/deals" },

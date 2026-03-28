@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useMultiAuth } from '@/contexts/MultiAuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { 
@@ -18,14 +17,12 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { employeeApi } from '@/lib/mediationApi';
+import { adminApi } from '@/lib/stockshipApi';
 import showToast from '@/lib/toast';
 
-const EmployeeTraderUpdateRequests = () => {
+const AdminTraderUpdateRequests = () => {
   const navigate = useNavigate();
   const { t, language, isRTL } = useLanguage();
-  const { getAuth } = useMultiAuth();
-  const { user } = getAuth('employee');
 
   const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
@@ -34,10 +31,8 @@ const EmployeeTraderUpdateRequests = () => {
   const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
-    if (user?.id) {
-      fetchUpdateRequests();
-    }
-  }, [user?.id, statusFilter]);
+    fetchUpdateRequests();
+  }, [statusFilter]);
 
   useEffect(() => {
     filterRequests();
@@ -46,7 +41,7 @@ const EmployeeTraderUpdateRequests = () => {
   const fetchUpdateRequests = async () => {
     try {
       setLoading(true);
-      const response = await employeeApi.getAllTraderUpdateRequests({
+      const response = await adminApi.listTraderUpdateRequests({
         status: statusFilter || undefined
       });
       const data = response.data?.data || response.data || [];
@@ -116,7 +111,7 @@ const EmployeeTraderUpdateRequests = () => {
       <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {t('mediation.trader.updateRequest.reviewTitle') || 'Trader Update Requests'}
+            {t('mediation.admin.traderUpdateRequests.title') || 'Trader update requests'}
           </h1>
           <p className="text-muted-foreground mt-2">
             {t('mediation.trader.updateRequest.reviewSubtitle') || 'Review and approve or reject trader profile update requests'}
@@ -226,7 +221,7 @@ const EmployeeTraderUpdateRequests = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate(`/stockship/employee/trader-update-requests/${request.id}`)}
+                      onClick={() => navigate(`/stockship/admin/trader-update-requests/${request.id}`)}
                       className="flex items-center gap-2"
                     >
                       <Eye className="w-4 h-4" />
@@ -244,5 +239,5 @@ const EmployeeTraderUpdateRequests = () => {
   );
 };
 
-export default EmployeeTraderUpdateRequests;
+export default AdminTraderUpdateRequests;
 

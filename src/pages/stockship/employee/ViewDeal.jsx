@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { dealApi, employeeApi, negotiationApi } from '@/lib/mediationApi';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ShoppingCart, Building2, User, Calendar, DollarSign, Package, CheckCircle, MessageSquare, CreditCard, Truck, Edit2, X, MapPin, Clock, CheckCircle2, AlertCircle, Eye, FileText } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Building2, User, Calendar, DollarSign, Package, CheckCircle, MessageSquare, CreditCard, Truck, Edit2, X, MapPin, Clock, CheckCircle2, AlertCircle, Eye, FileText, UserCog } from 'lucide-react';
 import showToast from '@/lib/toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -526,10 +526,24 @@ const ViewDeal = () => {
 
             <Card className="border-gray-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-gray-600" />
-                  {t('mediation.deals.client') || 'Client'}
-                </CardTitle>
+                <div className={`flex items-center justify-between gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-gray-600" />
+                    {t('mediation.deals.client') || 'Client'}
+                  </CardTitle>
+                  {deal.client?.id && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => navigate(`/stockship/employee/clients/${deal.client.id}/edit`)}
+                    >
+                      <UserCog className="w-4 h-4 me-1" />
+                      {t('mediation.employee.clientProfileRequest.proposeCta') || 'Propose profile update'}
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">

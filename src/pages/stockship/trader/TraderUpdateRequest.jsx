@@ -692,7 +692,7 @@ const TraderUpdateRequest = () => {
               {updateRequests.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">{t('mediation.trader.updateRequest.noRequests') || 'No update requests yet'}</p>
+                  <p className="text-sm">{t('mediation.trader.updateRequest.noRequestsYet')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
