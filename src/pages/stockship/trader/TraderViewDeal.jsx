@@ -805,10 +805,10 @@ const TraderViewDeal = () => {
                   deal.status === 'CANCELLED' ? 'text-red-800' :
                   'text-gray-800'
                 }`}>
-                  {deal.status === 'APPROVED' && (t('mediation.deals.status.approved') || 'موافق عليه')}
-                  {deal.status === 'PAID' && (t('mediation.deals.status.paid') || 'مدفوع')}
-                  {deal.status === 'SETTLED' && (t('mediation.deals.status.settled') || 'مسوى')}
-                  {deal.status === 'CANCELLED' && (t('mediation.deals.status.cancelled') || 'ملغى')}
+                  {deal.status === 'APPROVED' && t('mediation.deals.dealStatus.approved')}
+                  {deal.status === 'PAID' && t('mediation.deals.dealStatus.paid')}
+                  {deal.status === 'SETTLED' && t('mediation.deals.dealStatus.settled')}
+                  {deal.status === 'CANCELLED' && t('mediation.deals.dealStatus.cancelled')}
                 </span>
               </div>
               <p className={`text-sm mt-2 ${

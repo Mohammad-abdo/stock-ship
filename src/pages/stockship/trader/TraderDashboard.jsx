@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { traderApi, offerApi, dealApi } from "@/lib/mediationApi";
@@ -18,15 +18,41 @@ import {
   PieChart,
   ShoppingCart,
   Users,
-  Activity,
-  ArrowUp,
-  ArrowDown
+  Activity
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+
+const DEAL_STATUS_KEY = {
+  NEGOTIATION: "mediation.deals.negotiation",
+  APPROVED: "mediation.deals.approved",
+  PAID: "mediation.deals.paid",
+  SETTLED: "mediation.deals.settled",
+  CANCELLED: "mediation.deals.cancelled",
+};
 
 export default function TraderDashboard() {
   const { getAuth } = useMultiAuth();
   const { t, language, isRTL } = useLanguage();
+
+  const offerStatusLabel = useCallback(
+    (status) => {
+      if (!status) return "";
+      const path = `mediation.offers.offerStatus.${status}`;
+      const out = t(path);
+      return out === path ? String(status) : out;
+    },
+    [t]
+  );
+
+  const dealStatusLabel = useCallback(
+    (status) => {
+      if (!status) return "";
+      const path = DEAL_STATUS_KEY[status];
+      if (path) return t(path);
+      return String(status).replace(/_/g, " ");
+    },
+    [t]
+  );
   const navigate = useNavigate();
   const { user } = getAuth('trader');
   const [stats, setStats] = useState({
@@ -99,8 +125,9 @@ export default function TraderDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground text-sm">{t("dashboard.trader.loading")}</p>
       </div>
     );
   }
@@ -142,11 +169,12 @@ export default function TraderDashboard() {
       <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {language === 'ar' ? 'لوحة تحكم التاجر' : 'Trader Dashboard'}
+            {t("dashboard.trader.dashboard")}
           </h1>
           <div className="flex items-center gap-2 mt-2">
             <p className="text-muted-foreground">
-              {language === 'ar' ? 'مرحباً بعودتك' : 'Welcome back'}, <span className="font-semibold text-gray-900">{user?.name}</span>
+              {t("dashboard.trader.welcomeBack")},{" "}
+              <span className="font-semibold text-gray-900">{user?.name}</span>
             </p>
             {user?.traderCode && (
               <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-mono">
@@ -156,7 +184,10 @@ export default function TraderDashboard() {
           </div>
           {stats.employee && (
             <p className="text-sm text-muted-foreground mt-1">
-              {language === 'ar' ? 'الموظف المسؤول' : 'Assigned Employee'}: <span className="font-medium">{stats.employee.name} ({stats.employee.employeeCode})</span>
+              {t("dashboard.trader.assignedEmployee")}:{" "}
+              <span className="font-medium">
+                {stats.employee.name} ({stats.employee.employeeCode})
+              </span>
             </p>
           )}
         </div>
@@ -180,13 +211,13 @@ export default function TraderDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    {language === 'ar' ? 'إجمالي الإعلانات' : 'Total Offers'}
+                    {t("dashboard.trader.totalOffers")}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">{stats.offers.total}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-xs text-green-600 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
-                      {stats.offers.active} {language === 'ar' ? 'نشط' : 'active'}
+                      {stats.offers.active} {t("dashboard.trader.active")}
                     </span>
                   </div>
                 </div>
@@ -207,13 +238,13 @@ export default function TraderDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    {language === 'ar' ? 'إجمالي الصفقات' : 'Total Deals'}
+                    {t("dashboard.trader.totalDeals")}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">{stats.deals.total}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-xs text-blue-600 flex items-center gap-1">
                       <Activity className="w-3 h-3" />
-                      {stats.deals.active} {language === 'ar' ? 'نشط' : 'active'}
+                      {stats.deals.active} {t("dashboard.trader.active")}
                     </span>
                   </div>
                 </div>
@@ -234,13 +265,13 @@ export default function TraderDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    {language === 'ar' ? 'إجمالي المدفوعات' : 'Total Payments'}
+                    {t("dashboard.trader.totalPayments")}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">
                     {formatCurrency(stats.statistics.totalPayments)}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    {stats.statistics.paymentCount} {language === 'ar' ? 'دفعة' : 'payments'}
+                    {stats.statistics.paymentCount ?? 0} {t("dashboard.trader.paymentsWord")}
                   </p>
                 </div>
                 <div className="p-3 bg-purple-100 rounded-lg">
@@ -260,13 +291,13 @@ export default function TraderDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">
-                    {language === 'ar' ? 'صافي الأرباح' : 'Net Earnings'}
+                    {t("dashboard.trader.netEarnings")}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">
                     {formatCurrency(stats.statistics.totalTraderAmount)}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
-                    {stats.statistics.transactionCount} {language === 'ar' ? 'معاملة' : 'transactions'}
+                    {stats.statistics.transactionCount ?? 0} {t("dashboard.trader.transactionsWord")}
                   </p>
                 </div>
                 <div className="p-3 bg-yellow-100 rounded-lg">
@@ -285,7 +316,7 @@ export default function TraderDashboard() {
           <CardHeader className="border-b border-gray-200 bg-gray-50">
             <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <BarChart3 className="w-5 h-5 text-gray-600" />
-              {language === 'ar' ? 'الإعلانات حسب الحالة' : 'Offers by Status'}
+              {t("dashboard.trader.offersByStatus")}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -297,7 +328,7 @@ export default function TraderDashboard() {
                   return (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{item.status}</span>
+                        <span className="text-sm font-medium text-gray-700">{offerStatusLabel(item.status)}</span>
                         <span className="text-sm font-bold text-gray-900">{item._count?.status || 0}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -318,7 +349,7 @@ export default function TraderDashboard() {
                 })}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-8">{language === 'ar' ? 'لا توجد بيانات' : 'No data available'}</p>
+              <p className="text-muted-foreground text-center py-8">{t("dashboard.trader.noData")}</p>
             )}
           </CardContent>
         </Card>
@@ -328,7 +359,7 @@ export default function TraderDashboard() {
           <CardHeader className="border-b border-gray-200 bg-gray-50">
             <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <PieChart className="w-5 h-5 text-gray-600" />
-              {language === 'ar' ? 'الصفقات حسب الحالة' : 'Deals by Status'}
+              {t("dashboard.trader.dealsByStatus")}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -340,7 +371,7 @@ export default function TraderDashboard() {
                   return (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{item.status}</span>
+                        <span className="text-sm font-medium text-gray-700">{dealStatusLabel(item.status)}</span>
                         <span className="text-sm font-bold text-gray-900">{item._count?.status || 0}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -362,7 +393,7 @@ export default function TraderDashboard() {
                 })}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-8">{language === 'ar' ? 'لا توجد بيانات' : 'No data available'}</p>
+              <p className="text-muted-foreground text-center py-8">{t("dashboard.trader.noData")}</p>
             )}
           </CardContent>
         </Card>
@@ -376,13 +407,13 @@ export default function TraderDashboard() {
             <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Package className="w-5 h-5 text-gray-600" />
-                {language === 'ar' ? 'الإعلانات الأخيرة' : 'Recent Offers'}
+                {t("dashboard.trader.recentOffers")}
               </CardTitle>
               <Link
                 to="/stockship/trader/offers"
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
-                {language === 'ar' ? 'عرض الكل' : 'View All'}
+                {t("dashboard.trader.viewAll")}
               </Link>
             </div>
           </CardHeader>
@@ -397,17 +428,17 @@ export default function TraderDashboard() {
                     className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer"
                   >
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 mb-1">{offer.title || 'N/A'}</p>
+                      <p className="font-semibold text-gray-900 mb-1">{offer.title || t("common.notAvailable")}</p>
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(offer.status)}`}>
-                          {offer.status}
+                          {offerStatusLabel(offer.status)}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {offer._count?.items || 0} {language === 'ar' ? 'عنصر' : 'items'}
+                          {offer._count?.items || 0} {t("dashboard.trader.itemsWord")}
                         </span>
                         {offer.totalCBM && (
                           <span className="text-xs text-gray-500">
-                            {parseFloat(offer.totalCBM).toFixed(2)} CBM
+                            {parseFloat(offer.totalCBM).toFixed(2)} {t("dashboard.trader.cbm")}
                           </span>
                         )}
                       </div>
@@ -423,12 +454,12 @@ export default function TraderDashboard() {
             ) : (
               <div className="text-center py-8">
                 <Package className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-muted-foreground">{language === 'ar' ? 'لا توجد إعلانات' : 'No offers yet'}</p>
+                <p className="text-muted-foreground">{t("dashboard.trader.noOffersYet")}</p>
                 <Link
                   to="/stockship/trader/offers/create"
                   className="text-sm text-gray-600 hover:text-gray-900 mt-2 inline-block"
                 >
-                  {language === 'ar' ? 'إنشاء أول إعلان' : 'Create your first offer'}
+                  {t("dashboard.trader.createFirstOffer")}
                 </Link>
               </div>
             )}
@@ -441,13 +472,13 @@ export default function TraderDashboard() {
             <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
               <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <ShoppingCart className="w-5 h-5 text-gray-600" />
-                {language === 'ar' ? 'الصفقات الأخيرة' : 'Recent Deals'}
+                {t("dashboard.trader.recentDeals")}
               </CardTitle>
               <Link
                 to="/stockship/trader/deals"
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
-                {language === 'ar' ? 'عرض الكل' : 'View All'}
+                {t("dashboard.trader.viewAll")}
               </Link>
             </div>
           </CardHeader>
@@ -465,7 +496,7 @@ export default function TraderDashboard() {
                       <p className="font-semibold text-gray-900 mb-1 font-mono">{deal.dealNumber}</p>
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(deal.status)}`}>
-                          {deal.status}
+                          {dealStatusLabel(deal.status)}
                         </span>
                         {deal.client && (
                           <span className="text-xs text-gray-500 flex items-center gap-1">
@@ -489,7 +520,7 @@ export default function TraderDashboard() {
             ) : (
               <div className="text-center py-8">
                 <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-muted-foreground">{language === 'ar' ? 'لا توجد صفقات' : 'No deals yet'}</p>
+                <p className="text-muted-foreground">{t("dashboard.trader.noDealsYet")}</p>
               </div>
             )}
           </CardContent>

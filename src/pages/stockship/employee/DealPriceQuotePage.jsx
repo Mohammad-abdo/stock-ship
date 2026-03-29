@@ -24,9 +24,9 @@ const DealPriceQuotePage = () => {
   // Helper function to get status translation
   const getStatusTranslation = (status) => {
     const statusLower = status?.toLowerCase();
-    const translation = t(`mediation.deals.status.${statusLower}`) || t(`mediation.deals.${statusLower}`);
+    const translation = t(`mediation.deals.dealStatus.${statusLower}`) || t(`mediation.deals.${statusLower}`);
     
-    if (translation && translation !== `mediation.deals.status.${statusLower}` && translation !== `mediation.deals.${statusLower}`) {
+    if (translation && translation !== `mediation.deals.dealStatus.${statusLower}` && translation !== `mediation.deals.${statusLower}`) {
       return translation;
     }
     

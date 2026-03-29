@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ProfileStatusBadge from "./ProfileStatusBadge";
+import EmployeeSessionSync from "./EmployeeSessionSync";
 import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageToggle from "./LanguageToggle";
 import AppLogo from "./AppLogo";
@@ -17,13 +18,10 @@ import {
   Menu,
   X,
   Briefcase,
-  Globe,
-  Bell,
   ShoppingCart,
   Package,
   FolderTree,
   MapPin,
-  Edit,
   Gift,
   MessageSquare,
   UserCog,
@@ -50,21 +48,33 @@ export default function StockshipEmployeeLayout({ children }) {
     navigate('/multi-login');
   };
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/employee/dashboard" },
-    { icon: Users, label: t('mediation.employee.traders') || 'My Traders', path: "/stockship/employee/traders" },
-    { icon: Contact, label: t('mediation.employee.clientsList.nav') || 'My clients', path: "/stockship/employee/clients" },
-    { icon: FileText, label: t('mediation.trader.updateRequest.reviewTitle') || 'Trader Update Requests', path: "/stockship/employee/trader-update-requests" },
-    { icon: UserCog, label: t('mediation.employee.clientProfileRequest.nav') || 'Client profile requests', path: "/stockship/employee/client-profile-requests" },
-    { icon: Gift, label: t('mediation.offers.updateRequest.reviewTitle') || 'Offer Update Requests', path: "/stockship/employee/offer-update-requests" },
-    { icon: MessageSquare, label: t('mediation.support.tickets') || 'Offer Support Tickets', path: "/stockship/employee/offer-support-tickets" },
-    { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/employee/deals" },
-    { icon: Package, label: t('mediation.employee.offersValidation') || 'Offers Validation', path: "/stockship/employee/offers" },
-    { icon: MapPin, label: 'Shipping Tracking', path: "/stockship/employee/shipping-tracking" },
-    { icon: DollarSign, label: t('mediation.employee.payments') || 'Payments', path: "/stockship/employee/payments" },
-    { icon: FolderTree, label: t('sidebar.categories') || 'Categories', path: "/stockship/employee/categories" },
-    { icon: Settings, label: t('common.settings'), path: "/stockship/employee/settings" },
-  ];
+  const menuItems = useMemo(
+    () => [
+      { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/employee/dashboard" },
+      { icon: Users, label: t('mediation.employee.traders'), path: "/stockship/employee/traders" },
+      { icon: Contact, label: t('mediation.employee.clientsList.nav'), path: "/stockship/employee/clients" },
+      { icon: FileText, label: t('mediation.trader.updateRequest.reviewTitle'), path: "/stockship/employee/trader-update-requests" },
+      { icon: UserCog, label: t('mediation.employee.clientProfileRequest.nav'), path: "/stockship/employee/client-profile-requests" },
+      { icon: Gift, label: t('mediation.offers.updateRequest.reviewTitle'), path: "/stockship/employee/offer-update-requests" },
+      { icon: MessageSquare, label: t('mediation.support.tickets'), path: "/stockship/employee/offer-support-tickets" },
+      { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/employee/deals" },
+      { icon: Package, label: t('mediation.employee.offersValidation'), path: "/stockship/employee/offers" },
+      { icon: MapPin, label: t('sidebar.shippingTracking'), path: "/stockship/employee/shipping-tracking" },
+      { icon: DollarSign, label: t('mediation.employee.payments'), path: "/stockship/employee/payments" },
+      { icon: FolderTree, label: t('sidebar.categories'), path: "/stockship/employee/categories" },
+      { icon: Settings, label: t('common.settings'), path: "/stockship/employee/settings" },
+    ],
+    [t]
+  );
+
+  const currentNavLabel = useMemo(() => {
+    const path = location.pathname;
+    const sorted = [...menuItems].sort((a, b) => b.path.length - a.path.length);
+    const item = sorted.find(
+      (i) => path === i.path || path.startsWith(`${i.path}/`)
+    );
+    return item?.label ?? t('mediation.employee.portal');
+  }, [location.pathname, menuItems, t]);
 
   return (
     <div 
@@ -72,6 +82,7 @@ export default function StockshipEmployeeLayout({ children }) {
       dir={isRTL ? 'rtl' : 'ltr'}
       style={{ fontFamily: "'Alexandria', sans-serif" }}
     >
+      <EmployeeSessionSync />
       {/* Glassmorphism Sidebar */}
       <aside
         className={`${
@@ -89,12 +100,12 @@ export default function StockshipEmployeeLayout({ children }) {
         <div className={`h-16 flex items-center justify-between px-4 border-b border-white/20 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ backgroundColor: '#194386' }}>
           <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
             <AppLogo className="items-start" imgClassName="max-h-10" light />
-            <p className="text-xs text-white/80 mt-0.5">{t('mediation.employee.portal') || 'Employee Portal'}</p>
+            <p className="text-xs text-white/80 mt-0.5">{t('mediation.employee.portal')}</p>
           </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="lg:hidden p-1.5 rounded-lg hover:bg-white/20 text-white"
-            aria-label="Close menu"
+            aria-label={t('sidebar.closeMenu')}
           >
             <X size={18} />
           </button>
@@ -107,7 +118,7 @@ export default function StockshipEmployeeLayout({ children }) {
               <Briefcase className="w-5 h-5 text-gray-600" />
             </div>
             <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || t('mediation.employee.employee') || 'Employee'}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || t('mediation.employee.dashboardGuestName')}</p>
               <p className="text-xs text-gray-500 truncate">
                 {user?.employeeCode || 'EMP-0000'}
               </p>
@@ -173,12 +184,12 @@ export default function StockshipEmployeeLayout({ children }) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100/60 text-gray-600"
-              aria-label="Toggle menu"
+              aria-label={t('sidebar.toggleMenu')}
             >
               <Menu size={20} />
             </button>
             <h1 className={`text-base font-semibold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {menuItems.find(item => item.path === location.pathname)?.label || t('mediation.employee.portal') || 'Employee Portal'}
+              {currentNavLabel}
             </h1>
           </div>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>

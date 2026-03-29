@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "i18n:check": "node scripts/check-locale-duplicates.mjs && node scripts/check-locale-keys.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^7.9.6",
     "recharts": "^2.12.7",
+    "socket.io-client": "^4.8.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.17",

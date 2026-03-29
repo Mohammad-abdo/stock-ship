@@ -86,12 +86,12 @@ const ViewTrader = () => {
       'PENDING': 'bg-gray-100 text-gray-800'
     };
     const statusLabels = {
-      'NEGOTIATION': t('mediation.deals.status.negotiation'),
-      'APPROVED': t('mediation.deals.status.approved'),
-      'PAID': t('mediation.deals.status.paid'),
-      'SETTLED': t('mediation.deals.status.settled'),
-      'CANCELLED': t('mediation.deals.status.cancelled'),
-      'PENDING': t('mediation.deals.status.pending')
+      'NEGOTIATION': t('mediation.deals.dealStatus.negotiation'),
+      'APPROVED': t('mediation.deals.dealStatus.approved'),
+      'PAID': t('mediation.deals.dealStatus.paid'),
+      'SETTLED': t('mediation.deals.dealStatus.settled'),
+      'CANCELLED': t('mediation.deals.dealStatus.cancelled'),
+      'PENDING': t('mediation.deals.dealStatus.pending')
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || statusColors['PENDING']}`}>

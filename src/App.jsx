@@ -95,6 +95,8 @@ import AdminActivityLogs from "./pages/stockship/admin/AdminActivityLogs";
 import ViewActivityLog from "./pages/stockship/admin/ViewActivityLog";
 import AdminClientProfileRequests from "./pages/stockship/admin/AdminClientProfileRequests";
 import AdminViewClientProfileRequest from "./pages/stockship/admin/AdminViewClientProfileRequest";
+import AdminEmployeeProfileRequests from "./pages/stockship/admin/AdminEmployeeProfileRequests";
+import AdminViewEmployeeProfileRequest from "./pages/stockship/admin/AdminViewEmployeeProfileRequest";
 import AdminTraderUpdateRequests from "./pages/stockship/admin/AdminTraderUpdateRequests";
 import AdminViewTraderUpdateRequest from "./pages/stockship/admin/AdminViewTraderUpdateRequest";
 
@@ -767,6 +769,26 @@ function AppRoutes() {
           <MultiProtectedRoute requireAdmin>
             <StockshipAdminLayout>
               <AdminViewClientProfileRequest />
+            </StockshipAdminLayout>
+          </MultiProtectedRoute>
+        }
+      />
+      <Route
+        path="/stockship/admin/employee-profile-requests"
+        element={
+          <MultiProtectedRoute requireAdmin>
+            <StockshipAdminLayout>
+              <AdminEmployeeProfileRequests />
+            </StockshipAdminLayout>
+          </MultiProtectedRoute>
+        }
+      />
+      <Route
+        path="/stockship/admin/employee-profile-requests/:id"
+        element={
+          <MultiProtectedRoute requireAdmin>
+            <StockshipAdminLayout>
+              <AdminViewEmployeeProfileRequest />
             </StockshipAdminLayout>
           </MultiProtectedRoute>
         }

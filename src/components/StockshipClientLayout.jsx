@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,7 +22,7 @@ export default function StockshipClientLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { getAuth, logout } = useMultiAuth();
-  const { t, language, isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { user } = getAuth('client');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,20 +38,21 @@ export default function StockshipClientLayout({ children }) {
     navigate('/multi-login');
   };
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: t('sidebar.dashboard') || "Dashboard", path: "/stockship/client/dashboard" },
-    { icon: ShoppingBag, label: t('client.marketplace') || "Marketplace", path: "/stockship/client/dashboard" }, // Duplicate for emphasis or split later
-    { icon: FileText, label: t('client.myDeals') || "My Deals", path: "/stockship/client/deals" },
-    { icon: Settings, label: t('common.settings') || "Settings", path: "/stockship/client/settings" },
-  ];
+  const uniqueMenuItems = useMemo(
+    () => [
+      { icon: ShoppingBag, label: t('client.marketplace'), path: "/stockship/client/dashboard" },
+      { icon: FileText, label: t('client.myDeals'), path: "/stockship/client/deals" },
+      { icon: Settings, label: t('common.settings'), path: "/stockship/client/settings" },
+    ],
+    [t]
+  );
 
-  // Remove duplicate Dashboard/Marketplace if they point to same place, or distinct them
-  // For now Dashboard = Marketplace
-  const uniqueMenuItems = [
-    { icon: ShoppingBag, label: t('client.marketplace') || "Marketplace", path: "/stockship/client/dashboard" },
-    { icon: FileText, label: t('client.myDeals') || "My Deals", path: "/stockship/client/deals" },
-    { icon: Settings, label: t('common.settings') || "Settings", path: "/stockship/client/settings" },
-  ];
+  const currentNavLabel = useMemo(() => {
+    const path = location.pathname;
+    const sorted = [...uniqueMenuItems].sort((a, b) => b.path.length - a.path.length);
+    const item = sorted.find((i) => path === i.path || path.startsWith(`${i.path}/`));
+    return item?.label ?? t('client.portal');
+  }, [location.pathname, uniqueMenuItems, t]);
 
 
   return (
@@ -77,12 +78,12 @@ export default function StockshipClientLayout({ children }) {
         <div className={`h-16 flex items-center justify-between px-4 border-b border-white/20 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ backgroundColor: '#194386' }}>
           <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
             <AppLogo className="items-start" imgClassName="max-h-10" light />
-            <p className="text-xs text-white/80 mt-0.5">{t('client.portal') || 'Client Portal'}</p>
+            <p className="text-xs text-white/80 mt-0.5">{t('client.portal')}</p>
           </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="lg:hidden p-1.5 rounded-lg hover:bg-white/20 text-white"
-            aria-label="Close menu"
+            aria-label={t('sidebar.closeMenu')}
           >
             <X size={18} />
           </button>
@@ -95,7 +96,7 @@ export default function StockshipClientLayout({ children }) {
               <User className="w-5 h-5 text-gray-600" />
             </div>
             <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'Client'}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || t('client.guestName')}</p>
               <p className="text-xs text-gray-500 truncate">
                 {user?.email}
               </p>
@@ -107,7 +108,8 @@ export default function StockshipClientLayout({ children }) {
         <nav className="flex-1 overflow-y-auto p-3 space-y-1" dir={isRTL ? 'rtl' : 'ltr'}>
           {uniqueMenuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
             return (
               <Link
                 key={item.path}
@@ -133,7 +135,7 @@ export default function StockshipClientLayout({ children }) {
             className={`flex items-center ${isRTL ? 'flex-row-reverse justify-end' : 'flex-row'} gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100/60 text-gray-600 hover:text-gray-900 w-full transition-colors text-sm`}
           >
             <LogOut className={`w-5 h-5 shrink-0 ${isRTL ? 'order-2' : ''}`} />
-            <span className={`font-medium ${isRTL ? 'order-1 text-right' : 'text-left'}`}>{t('common.logout') || 'Logout'}</span>
+            <span className={`font-medium ${isRTL ? 'order-1 text-right' : 'text-left'}`}>{t('common.logout')}</span>
           </button>
         </div>
       </aside>
@@ -160,12 +162,12 @@ export default function StockshipClientLayout({ children }) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100/60 text-gray-600"
-              aria-label="Toggle menu"
+              aria-label={t('sidebar.toggleMenu')}
             >
               <Menu size={20} />
             </button>
             <h1 className={`text-base font-semibold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {uniqueMenuItems.find(item => item.path === location.pathname)?.label || t('client.portal') || 'Client Portal'}
+              {currentNavLabel}
             </h1>
           </div>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>

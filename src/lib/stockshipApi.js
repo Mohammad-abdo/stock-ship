@@ -168,6 +168,15 @@ export const adminApi = {
   rejectClientProfileRequest: (id, data) =>
     stockshipApi.put(`/admin/client-profile-requests/${id}/reject`, data),
 
+  // Employee own profile update requests (mediation — admin approves)
+  listEmployeeProfileRequests: (params) =>
+    stockshipApi.get("/admin/employee-profile-requests", { params }),
+  getEmployeeProfileRequest: (id) => stockshipApi.get(`/admin/employee-profile-requests/${id}`),
+  approveEmployeeProfileRequest: (id, data) =>
+    stockshipApi.put(`/admin/employee-profile-requests/${id}/approve`, data),
+  rejectEmployeeProfileRequest: (id, data) =>
+    stockshipApi.put(`/admin/employee-profile-requests/${id}/reject`, data),
+
   // Trader profile update requests (trader self-service + employee proposals; admin approves employee proposals)
   listTraderUpdateRequests: (params) =>
     stockshipApi.get('/admin/trader-update-requests', { params }),

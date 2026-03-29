@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,7 +13,6 @@ import {
   DollarSign, 
   TrendingUp,
   ShoppingCart,
-  Package,
   ArrowRight,
   Clock
 } from "lucide-react";
@@ -29,6 +28,14 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
+
+const DEAL_STATUS_I18N = {
+  NEGOTIATION: 'mediation.deals.negotiation',
+  APPROVED: 'mediation.deals.approved',
+  PAID: 'mediation.deals.paid',
+  SETTLED: 'mediation.deals.settled',
+  CANCELLED: 'mediation.deals.cancelled'
+};
 
 export default function EmployeeDashboard() {
   const navigate = useNavigate();
@@ -80,12 +87,22 @@ export default function EmployeeDashboard() {
 
   const dealsData = generateDealsData();
 
+  const dealStatusLabel = useCallback(
+    (status) => {
+      if (!status) return '';
+      const path = DEAL_STATUS_I18N[status];
+      if (path) return t(path);
+      return String(status).replace(/_/g, ' ');
+    },
+    [t]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-400 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">{t('mediation.employee.loading') || 'Loading dashboard...'}</p>
+          <p className="text-muted-foreground">{t('mediation.employee.dashboardLoading')}</p>
         </div>
       </div>
     );
@@ -94,8 +111,8 @@ export default function EmployeeDashboard() {
   if (!dashboard) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">{t('mediation.employee.dashboard') || 'Employee Dashboard'}</h1>
-        <p>{t('mediation.employee.noData') || 'No data available'}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('mediation.employee.dashboard')}</h1>
+        <p>{t('mediation.employee.noData')}</p>
       </div>
     );
   }
@@ -103,36 +120,36 @@ export default function EmployeeDashboard() {
   const statCards = [
     {
       icon: Users,
-      label: t('mediation.employee.totalTraders') || 'Total Traders',
+      label: t('mediation.employee.totalTraders'),
       value: dashboard.stats?.traderCount || 0,
-      description: t('mediation.employee.tradersDescription') || 'Linked traders',
+      description: t('mediation.employee.tradersDescription'),
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
       onClick: () => navigate('/stockship/employee/traders')
     },
     {
       icon: ShoppingCart,
-      label: t('mediation.employee.activeDeals') || 'Active Deals',
+      label: t('mediation.employee.activeDeals'),
       value: dashboard.stats?.activeDealsCount || 0,
-      description: t('mediation.employee.activeDealsDescription') || 'Currently active',
+      description: t('mediation.employee.activeDealsDescription'),
       color: 'text-green-600',
       bgColor: 'bg-green-100',
       onClick: () => navigate('/stockship/employee/deals')
     },
     {
       icon: FileText,
-      label: t('mediation.employee.totalDeals') || 'Total Deals',
+      label: t('mediation.employee.totalDeals'),
       value: dashboard.stats?.totalDealsCount || 0,
-      description: t('mediation.employee.totalDealsDescription') || 'All time',
+      description: t('mediation.employee.totalDealsDescription'),
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
       onClick: () => navigate('/stockship/employee/deals')
     },
     {
       icon: DollarSign,
-      label: t('mediation.employee.totalCommission') || 'Total Commission',
+      label: t('mediation.employee.totalCommission'),
       value: `$${(Number(dashboard.stats?.totalCommission) || 0).toFixed(2)}`,
-      description: t('mediation.employee.commissionDescription') || 'Earned commission',
+      description: t('mediation.employee.commissionDescription'),
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-100',
       isCurrency: true
@@ -150,10 +167,10 @@ export default function EmployeeDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            {t('mediation.employee.dashboard') || 'Employee Dashboard'}
+            {t('mediation.employee.dashboard')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            {t('mediation.employee.welcome') || 'Welcome back'}, {dashboard.employee?.name || 'Employee'} 
+            {t('mediation.employee.welcome')}, {dashboard.employee?.name || t('mediation.employee.dashboardGuestName')} 
             {dashboard.employee?.employeeCode && ` (${dashboard.employee.employeeCode})`}
           </p>
         </div>
@@ -201,7 +218,7 @@ export default function EmployeeDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-gray-600" />
-              {t('mediation.employee.dealsTrend') || 'Deals Trend (Last 7 Days)'}
+              {t('mediation.employee.dealsTrend')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -231,7 +248,7 @@ export default function EmployeeDashboard() {
                   stroke="#3b82f6" 
                   strokeWidth={2}
                   dot={{ fill: '#3b82f6', r: 4 }}
-                  name={t('mediation.employee.deals') || 'Deals'}
+                  name={t('mediation.employee.deals')}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -243,7 +260,7 @@ export default function EmployeeDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-gray-600" />
-              {t('mediation.employee.quickActions') || 'Quick Actions'}
+              {t('mediation.employee.quickActions')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -259,8 +276,8 @@ export default function EmployeeDashboard() {
                     <Users className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-gray-900">{t('mediation.employee.registerTrader') || 'Register New Trader'}</p>
-                    <p className="text-sm text-gray-500">{t('mediation.employee.registerTraderDesc') || 'Add a new trader to your list'}</p>
+                    <p className="font-medium text-gray-900">{t('mediation.employee.registerTrader')}</p>
+                    <p className="text-sm text-gray-500">{t('mediation.employee.registerTraderDesc')}</p>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -276,8 +293,8 @@ export default function EmployeeDashboard() {
                     <Users className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-gray-900">{t('mediation.employee.manageTraders') || 'Manage Traders'}</p>
-                    <p className="text-sm text-gray-500">{t('mediation.employee.manageTradersDesc') || 'View and manage your traders'}</p>
+                    <p className="font-medium text-gray-900">{t('mediation.employee.manageTraders')}</p>
+                    <p className="text-sm text-gray-500">{t('mediation.employee.manageTradersDesc')}</p>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -293,8 +310,8 @@ export default function EmployeeDashboard() {
                     <ShoppingCart className="w-5 h-5 text-purple-600" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-gray-900">{t('mediation.employee.manageDeals') || 'Manage Deals'}</p>
-                    <p className="text-sm text-gray-500">{t('mediation.employee.manageDealsDesc') || 'Monitor and manage deals'}</p>
+                    <p className="font-medium text-gray-900">{t('mediation.employee.manageDeals')}</p>
+                    <p className="text-sm text-gray-500">{t('mediation.employee.manageDealsDesc')}</p>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 text-gray-400" />
@@ -310,14 +327,14 @@ export default function EmployeeDashboard() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-gray-600" />
-              {t('mediation.employee.recentDeals') || 'Recent Deals'}
+              {t('mediation.employee.recentDeals')}
             </CardTitle>
             {dashboard.recentDeals && dashboard.recentDeals.length > 0 && (
               <button
                 onClick={() => navigate('/stockship/employee/deals')}
                 className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
               >
-                {t('mediation.employee.viewAll') || 'View All'}
+                {t('mediation.employee.viewAll')}
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
@@ -345,20 +362,20 @@ export default function EmployeeDashboard() {
                         deal.status === 'SETTLED' ? 'bg-gray-100 text-gray-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {deal.status?.replace(/_/g, ' ')}
+                        {dealStatusLabel(deal.status)}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-500">{t('mediation.deals.trader') || 'Trader'}</p>
-                        <p className="font-medium text-gray-900">{deal.trader?.companyName || 'N/A'}</p>
+                        <p className="text-gray-500">{t('mediation.deals.trader')}</p>
+                        <p className="font-medium text-gray-900">{deal.trader?.companyName || t('common.notAvailable')}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">{t('mediation.deals.client') || 'Client'}</p>
-                        <p className="font-medium text-gray-900">{deal.client?.name || 'N/A'}</p>
+                        <p className="text-gray-500">{t('mediation.deals.client')}</p>
+                        <p className="font-medium text-gray-900">{deal.client?.name || t('common.notAvailable')}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">{t('mediation.deals.negotiatedAmount') || 'Amount'}</p>
+                        <p className="text-gray-500">{t('mediation.deals.negotiatedAmount')}</p>
                         <p className="font-medium text-gray-900">
                           ${(Number(deal.negotiatedAmount) || 0).toFixed(2)}
                         </p>
@@ -377,9 +394,9 @@ export default function EmployeeDashboard() {
           ) : (
             <div className="text-center py-12">
               <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 font-medium">{t('mediation.employee.noRecentDeals') || 'No recent deals'}</p>
+              <p className="text-gray-600 font-medium">{t('mediation.employee.noRecentDeals')}</p>
               <p className="text-sm text-gray-500 mt-2">
-                {t('mediation.employee.noRecentDealsDesc') || 'Deals will appear here when your traders have active negotiations'}
+                {t('mediation.employee.noRecentDealsDesc')}
               </p>
             </div>
           )}

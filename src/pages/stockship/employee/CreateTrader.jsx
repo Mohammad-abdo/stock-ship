@@ -416,19 +416,19 @@ export default function CreateTrader() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-muted-foreground" />
-              {t('mediation.trader.updateRequest.companyAddress') || 'Company Address'}
+              {t('mediation.trader.updateRequest.companyAddress')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div>
-              <label className={labelClass}>{t('mediation.trader.updateRequest.companyAddressPlaceholder') || 'Company address'}</label>
+              <label className={labelClass}>{t('mediation.trader.updateRequest.companyAddressPlaceholder')}</label>
               <textarea
                 name="companyAddress"
                 value={formData.companyAddress}
                 onChange={handleChange}
                 rows={3}
                 className={`${inputClass} resize-y min-h-[80px]`}
-                placeholder={t('mediation.trader.updateRequest.companyAddressPlaceholder') || 'Enter company address'}
+                placeholder={t('mediation.trader.updateRequest.companyAddressPlaceholder')}
               />
             </div>
           </CardContent>
@@ -439,40 +439,40 @@ export default function CreateTrader() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5 text-muted-foreground" />
-              {t('mediation.trader.updateRequest.bankInfo') || 'Bank Information'}
+              {t('mediation.trader.updateRequest.bankInfo')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAccountName') || 'Bank Account Name'}</label>
-                <input type="text" name="bankAccountName" value={formData.bankAccountName} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankAccountNamePlaceholder') || 'Account name'} />
+                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAccountName')}</label>
+                <input type="text" name="bankAccountName" value={formData.bankAccountName} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankAccountNamePlaceholder')} />
               </div>
               <div>
-                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAccountNumber') || 'Bank Account Number'}</label>
-                <input type="text" name="bankAccountNumber" value={formData.bankAccountNumber} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankAccountNumberPlaceholder') || 'Account number'} />
+                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAccountNumber')}</label>
+                <input type="text" name="bankAccountNumber" value={formData.bankAccountNumber} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankAccountNumberPlaceholder')} />
               </div>
               <div>
-                <label className={labelClass}>{t('mediation.trader.updateRequest.bankName') || 'Bank Name'}</label>
-                <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankNamePlaceholder') || 'Bank name'} />
+                <label className={labelClass}>{t('mediation.trader.updateRequest.bankName')}</label>
+                <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankNamePlaceholder')} />
               </div>
               <div>
-                <label className={labelClass}>{t('mediation.trader.updateRequest.bankCode') || 'Bank Code'}</label>
-                <input type="text" name="bankCode" value={formData.bankCode} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankCodePlaceholder') || 'Bank code'} />
+                <label className={labelClass}>{t('mediation.trader.updateRequest.bankCode')}</label>
+                <input type="text" name="bankCode" value={formData.bankCode} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.bankCodePlaceholder')} />
               </div>
               <div>
-                <label className={labelClass}>{t('mediation.trader.updateRequest.swiftCode') || 'SWIFT Code'}</label>
-                <input type="text" name="swiftCode" value={formData.swiftCode} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.swiftCodePlaceholder') || 'SWIFT'} />
+                <label className={labelClass}>{t('mediation.trader.updateRequest.swiftCode')}</label>
+                <input type="text" name="swiftCode" value={formData.swiftCode} onChange={handleChange} className={inputClass} placeholder={t('mediation.trader.updateRequest.swiftCodePlaceholder')} />
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAddress') || 'Bank Address'}</label>
+                <label className={labelClass}>{t('mediation.trader.updateRequest.bankAddress')}</label>
                 <textarea
                   name="bankAddress"
                   value={formData.bankAddress}
                   onChange={handleChange}
                   rows={2}
                   className={`${inputClass} resize-y`}
-                  placeholder={t('mediation.trader.updateRequest.bankAddressPlaceholder') || 'Bank address'}
+                  placeholder={t('mediation.trader.updateRequest.bankAddressPlaceholder')}
                 />
               </div>
             </div>
@@ -484,12 +484,12 @@ export default function CreateTrader() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="w-5 h-5 text-muted-foreground" />
-              {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+              {t('mediation.traders.traderDocuments')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div>
-                <label className={labelClass}>{t('mediation.traders.uploadTraderDocuments') || 'رفع ملفات التاجر (صور أو PDF)'}</label>
+                <label className={labelClass}>{t('mediation.traders.uploadTraderDocuments')}</label>
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -501,7 +501,7 @@ export default function CreateTrader() {
                 {uploadingDocs && (
                   <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {t('mediation.common.uploading') || 'Uploading...'}
+                    {t('mediation.common.uploading')}
                   </p>
                 )}
                 {documents.length > 0 && (
@@ -528,7 +528,7 @@ export default function CreateTrader() {
             onClick={() => navigate('/stockship/employee/traders')}
             className="px-6 py-2 border rounded-lg hover:bg-gray-50"
           >
-            {t('common.cancel') || 'Cancel'}
+            {t('common.cancel')}
           </motion.button>
           <motion.button
             type="submit"
@@ -541,15 +541,15 @@ export default function CreateTrader() {
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 {isEdit
-                  ? (t('mediation.common.saving') || 'Saving...')
-                  : (t('mediation.common.creating') || 'Creating...')}
+                  ? t('mediation.common.saving')
+                  : t('mediation.common.creating')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
                 {isEdit
-                  ? (t('mediation.employee.submitTraderEditForApproval') || 'Submit for approval')
-                  : (t('mediation.common.create') || 'Create')}
+                  ? t('mediation.employee.submitTraderEditForApproval')
+                  : t('mediation.common.create')}
               </>
             )}
           </motion.button>

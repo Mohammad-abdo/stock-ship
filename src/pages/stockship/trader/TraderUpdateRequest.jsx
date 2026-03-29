@@ -33,7 +33,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const TraderUpdateRequest = () => {
   const { getAuth } = useMultiAuth();
-  const { t, language, isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { user } = getAuth('trader');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -87,8 +87,8 @@ const TraderUpdateRequest = () => {
     } catch (error) {
       console.error('Error loading profile:', error);
       showToast.error(
-        t('mediation.trader.loadProfileFailed') || 'Failed to load profile',
-        error.response?.data?.message || 'Please try again'
+        t('mediation.trader.loadProfileFailed'),
+        error.response?.data?.message || t('common.tryAgain')
       );
     } finally {
       setLoading(false);
@@ -123,7 +123,7 @@ const TraderUpdateRequest = () => {
     } catch (err) {
       console.error('Document upload failed:', err);
       showToast.error(
-        t('mediation.traders.documentsUploadFailed') || 'Upload failed',
+        t('mediation.traders.documentsUploadFailed'),
         err.response?.data?.message || t('common.tryAgain')
       );
     } finally {
@@ -148,8 +148,8 @@ const TraderUpdateRequest = () => {
 
     if (!hasChanges) {
       showToast.error(
-        t('mediation.trader.updateRequest.noChanges') || 'No Changes',
-        t('mediation.trader.updateRequest.noChangesDesc') || 'Please make some changes before submitting a request'
+        t('mediation.trader.updateRequest.noChanges'),
+        t('mediation.trader.updateRequest.noChangesDesc')
       );
       return;
     }
@@ -158,8 +158,8 @@ const TraderUpdateRequest = () => {
     const pendingRequest = updateRequests.find(req => req.status === 'PENDING');
     if (pendingRequest) {
       showToast.error(
-        t('mediation.trader.updateRequest.pendingExists') || 'Pending Request Exists',
-        t('mediation.trader.updateRequest.pendingExistsDesc') || 'You already have a pending request. Please wait for review or cancel it first.'
+        t('mediation.trader.updateRequest.pendingExists'),
+        t('mediation.trader.updateRequest.pendingExistsDesc')
       );
       return;
     }
@@ -173,8 +173,8 @@ const TraderUpdateRequest = () => {
       }
       await traderApi.createUpdateRequest(payload);
       showToast.success(
-        t('mediation.trader.updateRequest.requestCreated') || 'Request Created',
-        t('mediation.trader.updateRequest.requestCreatedSuccess') || 'Your update request has been submitted successfully. An employee will review it soon.'
+        t('mediation.trader.updateRequest.requestCreated'),
+        t('mediation.trader.updateRequest.requestCreatedSuccess')
       );
       await loadUpdateRequests();
       await loadProfile();
@@ -182,8 +182,8 @@ const TraderUpdateRequest = () => {
     } catch (error) {
       console.error('Error creating update request:', error);
       showToast.error(
-        t('mediation.trader.updateRequest.createFailed') || 'Failed to create request',
-        error.response?.data?.message || 'Please try again'
+        t('mediation.trader.updateRequest.createFailed'),
+        error.response?.data?.message || t('common.tryAgain')
       );
     } finally {
       setSaving(false);
@@ -191,32 +191,32 @@ const TraderUpdateRequest = () => {
   };
 
   const handleCancelRequest = async (requestId) => {
-    if (!confirm(t('mediation.trader.updateRequest.cancelConfirm') || 'Are you sure you want to cancel this request?')) {
+    if (!confirm(t('mediation.trader.updateRequest.cancelConfirm'))) {
       return;
     }
 
     try {
       await traderApi.cancelUpdateRequest(requestId);
       showToast.success(
-        t('mediation.trader.updateRequest.requestCancelled') || 'Request Cancelled',
-        t('mediation.trader.updateRequest.requestCancelledSuccess') || 'Your update request has been cancelled'
+        t('mediation.trader.updateRequest.requestCancelled'),
+        t('mediation.trader.updateRequest.requestCancelledSuccess')
       );
       await loadUpdateRequests();
     } catch (error) {
       console.error('Error cancelling request:', error);
       showToast.error(
-        t('mediation.trader.updateRequest.cancelFailed') || 'Failed to cancel request',
-        error.response?.data?.message || 'Please try again'
+        t('mediation.trader.updateRequest.cancelFailed'),
+        error.response?.data?.message || t('common.tryAgain')
       );
     }
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.trader.updateRequest.status.pending') || 'Pending' },
-      APPROVED: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.trader.updateRequest.status.approved') || 'Approved' },
-      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.trader.updateRequest.status.rejected') || 'Rejected' },
-      CANCELLED: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.trader.updateRequest.status.cancelled') || 'Cancelled' }
+      PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: t('mediation.trader.updateRequest.status.pending') },
+      APPROVED: { bg: 'bg-green-100', text: 'text-green-800', label: t('mediation.trader.updateRequest.status.approved') },
+      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', label: t('mediation.trader.updateRequest.status.rejected') },
+      CANCELLED: { bg: 'bg-gray-100', text: 'text-gray-800', label: t('mediation.trader.updateRequest.status.cancelled') }
     };
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
     return (
@@ -231,7 +231,7 @@ const TraderUpdateRequest = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-400 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">{t('mediation.trader.loading') || 'Loading...'}</p>
+          <p className="text-muted-foreground">{t('mediation.trader.loading')}</p>
         </div>
       </div>
     );
@@ -248,10 +248,10 @@ const TraderUpdateRequest = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          {t('mediation.trader.updateRequest.title') || 'Request Profile Update'}
+          {t('mediation.trader.updateRequest.title')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          {t('mediation.trader.updateRequest.subtitle') || 'Request changes to your profile information. An employee will review and approve your request.'}
+          {t('mediation.trader.updateRequest.subtitle')}
         </p>
       </div>
 
@@ -262,10 +262,10 @@ const TraderUpdateRequest = () => {
             <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-yellow-900 mb-1">
-                {t('mediation.trader.updateRequest.pendingRequest') || 'You have a pending update request'}
+                {t('mediation.trader.updateRequest.pendingRequest')}
               </p>
               <p className="text-xs text-yellow-700">
-                {t('mediation.trader.updateRequest.pendingRequestDesc') || 'Please wait for an employee to review your request before submitting a new one.'}
+                {t('mediation.trader.updateRequest.pendingRequestDesc')}
               </p>
             </div>
           </div>
@@ -279,7 +279,7 @@ const TraderUpdateRequest = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-gray-600" />
-                {t('mediation.trader.updateRequest.requestForm') || 'Update Request Form'}
+                {t('mediation.trader.updateRequest.requestForm')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -288,13 +288,13 @@ const TraderUpdateRequest = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    {t('mediation.trader.updateRequest.personalInfo') || 'Personal Information'}
+                    {t('mediation.trader.updateRequest.personalInfo')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.common.name') || 'Name'}
+                        {t('mediation.common.name')}
                       </label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -304,12 +304,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.name}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.namePlaceholder') || 'Enter your name'}
+                          placeholder={t('mediation.trader.namePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.name}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.name}
                         </p>
                       )}
                     </div>
@@ -317,7 +317,7 @@ const TraderUpdateRequest = () => {
                     {/* Phone */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.common.phone') || 'Phone'}
+                        {t('mediation.common.phone')}
                       </label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -327,12 +327,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.phone}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.common.phonePlaceholder') || 'Enter your phone number'}
+                          placeholder={t('mediation.common.phonePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.phone || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.phone || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -340,7 +340,7 @@ const TraderUpdateRequest = () => {
                     {/* Country */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.common.country') || 'Country'}
+                        {t('mediation.common.country')}
                       </label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -350,12 +350,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.country}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.common.countryPlaceholder') || 'Enter your country'}
+                          placeholder={t('mediation.common.countryPlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.country || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.country || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -363,7 +363,7 @@ const TraderUpdateRequest = () => {
                     {/* City */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.common.city') || 'City'}
+                        {t('mediation.common.city')}
                       </label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -373,12 +373,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.city}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.common.cityPlaceholder') || 'Enter your city'}
+                          placeholder={t('mediation.common.cityPlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.city || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.city || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -389,13 +389,13 @@ const TraderUpdateRequest = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
-                    {t('mediation.trader.updateRequest.companyInfo') || 'Company Information'}
+                    {t('mediation.trader.updateRequest.companyInfo')}
                   </h3>
                   <div className="space-y-4">
                     {/* Company Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.traders.companyName') || 'Company Name'}
+                        {t('mediation.traders.companyName')}
                       </label>
                       <div className="relative">
                         <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -405,12 +405,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.companyName}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.companyNamePlaceholder') || 'Enter your company name'}
+                          placeholder={t('mediation.trader.companyNamePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.companyName}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.companyName}
                         </p>
                       )}
                     </div>
@@ -418,18 +418,18 @@ const TraderUpdateRequest = () => {
                     {/* Company Address */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.companyAddress') || 'Company Address'}
+                        {t('mediation.trader.updateRequest.companyAddress')}
                       </label>
                       <Textarea
                         name="companyAddress"
                         value={requestData.companyAddress}
                         onChange={handleChange}
                         rows={3}
-                        placeholder={t('mediation.trader.updateRequest.companyAddressPlaceholder') || 'Enter your company address'}
+                        placeholder={t('mediation.trader.updateRequest.companyAddressPlaceholder')}
                       />
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.companyAddress || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.companyAddress || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -440,13 +440,13 @@ const TraderUpdateRequest = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <CreditCard className="w-4 h-4" />
-                    {t('mediation.trader.updateRequest.bankInfo') || 'Bank Information'}
+                    {t('mediation.trader.updateRequest.bankInfo')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Bank Account Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.bankAccountName') || 'Bank Account Name'}
+                        {t('mediation.trader.updateRequest.bankAccountName')}
                       </label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -456,12 +456,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.bankAccountName}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.updateRequest.bankAccountNamePlaceholder') || 'Enter bank account name'}
+                          placeholder={t('mediation.trader.updateRequest.bankAccountNamePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.bankAccountName || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.bankAccountName || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -469,7 +469,7 @@ const TraderUpdateRequest = () => {
                     {/* Bank Account Number */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.bankAccountNumber') || 'Bank Account Number'}
+                        {t('mediation.trader.updateRequest.bankAccountNumber')}
                       </label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -479,12 +479,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.bankAccountNumber}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.updateRequest.bankAccountNumberPlaceholder') || 'Enter bank account number'}
+                          placeholder={t('mediation.trader.updateRequest.bankAccountNumberPlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.bankAccountNumber || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.bankAccountNumber || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -492,7 +492,7 @@ const TraderUpdateRequest = () => {
                     {/* Bank Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.bankName') || 'Bank Name'}
+                        {t('mediation.trader.updateRequest.bankName')}
                       </label>
                       <div className="relative">
                         <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -502,12 +502,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.bankName}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.updateRequest.bankNamePlaceholder') || 'Enter bank name'}
+                          placeholder={t('mediation.trader.updateRequest.bankNamePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.bankName || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.bankName || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -515,7 +515,7 @@ const TraderUpdateRequest = () => {
                     {/* Bank Code */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.bankCode') || 'Bank Code'}
+                        {t('mediation.trader.updateRequest.bankCode')}
                       </label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -525,12 +525,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.bankCode}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.updateRequest.bankCodePlaceholder') || 'Enter bank code'}
+                          placeholder={t('mediation.trader.updateRequest.bankCodePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.bankCode || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.bankCode || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -538,7 +538,7 @@ const TraderUpdateRequest = () => {
                     {/* Swift Code */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('mediation.trader.updateRequest.swiftCode') || 'SWIFT Code'}
+                        {t('mediation.trader.updateRequest.swiftCode')}
                       </label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -548,12 +548,12 @@ const TraderUpdateRequest = () => {
                           value={requestData.swiftCode}
                           onChange={handleChange}
                           className="pl-10"
-                          placeholder={t('mediation.trader.updateRequest.swiftCodePlaceholder') || 'Enter SWIFT code'}
+                          placeholder={t('mediation.trader.updateRequest.swiftCodePlaceholder')}
                         />
                       </div>
                       {traderDetails && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.swiftCode || t('common.notAvailable') || 'N/A'}
+                          {t('mediation.trader.updateRequest.current')}: {traderDetails.swiftCode || t('common.notAvailable')}
                         </p>
                       )}
                     </div>
@@ -562,18 +562,18 @@ const TraderUpdateRequest = () => {
                   {/* Bank Address */}
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('mediation.trader.updateRequest.bankAddress') || 'Bank Address'}
+                      {t('mediation.trader.updateRequest.bankAddress')}
                     </label>
                     <Textarea
                       name="bankAddress"
                       value={requestData.bankAddress}
                       onChange={handleChange}
                       rows={3}
-                      placeholder={t('mediation.trader.updateRequest.bankAddressPlaceholder') || 'Enter bank address'}
+                      placeholder={t('mediation.trader.updateRequest.bankAddressPlaceholder')}
                     />
                     {traderDetails && (
                       <p className="text-xs text-gray-500 mt-1">
-                        {t('mediation.trader.updateRequest.current') || 'Current'}: {traderDetails.bankAddress || t('common.notAvailable') || 'N/A'}
+                        {t('mediation.trader.updateRequest.current')}: {traderDetails.bankAddress || t('common.notAvailable')}
                       </p>
                     )}
                   </div>
@@ -583,10 +583,10 @@ const TraderUpdateRequest = () => {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <Upload className="w-4 h-4" />
-                    {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+                    {t('mediation.traders.traderDocuments')}
                   </h3>
                   <p className="text-xs text-gray-500 mb-2">
-                    {t('mediation.trader.updateRequest.uploadDocumentsHint') || 'You can add new documents. They will be applied when your request is approved.'}
+                    {t('mediation.trader.updateRequest.uploadDocumentsHint')}
                   </p>
                   <input
                     type="file"
@@ -599,7 +599,7 @@ const TraderUpdateRequest = () => {
                   {uploadingDocs && (
                     <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {t('mediation.common.uploading') || 'Uploading...'}
+                      {t('mediation.common.uploading')}
                     </p>
                   )}
                   {newDocuments.length > 0 && (
@@ -628,12 +628,12 @@ const TraderUpdateRequest = () => {
                     {saving ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        {t('mediation.trader.updateRequest.submitting') || 'Submitting...'}
+                        {t('mediation.trader.updateRequest.submitting')}
                       </>
                     ) : (
                       <>
                         <Save className="w-4 h-4" />
-                        {t('mediation.trader.updateRequest.submitRequest') || 'Submit Update Request'}
+                        {t('mediation.trader.updateRequest.submitRequest')}
                       </>
                     )}
                   </motion.button>
@@ -650,14 +650,14 @@ const TraderUpdateRequest = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileStack className="w-5 h-5 text-gray-600" />
-                {t('mediation.traders.traderDocuments') || 'مستندات التاجر'}
+                {t('mediation.traders.traderDocuments')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {!traderDetails?.documents || (Array.isArray(traderDetails.documents) && traderDetails.documents.length === 0) ? (
                 <div className="text-center py-6 text-gray-500">
                   <FileStack className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">{t('mediation.trader.noDocuments') || 'No documents uploaded'}</p>
+                  <p className="text-sm">{t('mediation.trader.noDocuments')}</p>
                 </div>
               ) : (
                 <ul className="space-y-2">
@@ -669,7 +669,7 @@ const TraderUpdateRequest = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-shrink-0 p-1 text-primary-600 hover:text-primary-800"
-                        title={t('common.view') || 'View'}
+                        title={t('common.view')}
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
@@ -685,7 +685,7 @@ const TraderUpdateRequest = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-gray-600" />
-                {t('mediation.trader.updateRequest.requestHistory') || 'Request History'}
+                {t('mediation.trader.updateRequest.requestHistory')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -706,7 +706,7 @@ const TraderUpdateRequest = () => {
                       </div>
                       {request.reviewer && (
                         <p className="text-xs text-gray-600 mb-2">
-                          {t('mediation.trader.updateRequest.reviewedBy') || 'Reviewed by'}: {request.reviewer.name}
+                          {t('mediation.trader.updateRequest.reviewedBy')}: {request.reviewer.name}
                         </p>
                       )}
                       {request.status === 'PENDING' && (
@@ -716,7 +716,7 @@ const TraderUpdateRequest = () => {
                           onClick={() => handleCancelRequest(request.id)}
                           className="mt-2 w-full"
                         >
-                          {t('mediation.trader.updateRequest.cancel') || 'Cancel Request'}
+                          {t('mediation.trader.updateRequest.cancel')}
                         </Button>
                       )}
                     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
@@ -13,14 +13,11 @@ import {
   Users,
   Settings,
   BarChart3,
-  Bell,
   LogOut,
   Menu,
   X,
-  Wallet,
   Shield,
   CreditCard,
-  Globe,
   MessageSquare,
   Download,
   Briefcase,
@@ -34,6 +31,7 @@ import {
   MapPin,
   Video,
   UserCog,
+  UserCircle,
 } from "lucide-react";
 
 const StockshipAdminLayout = ({ children }) => {
@@ -43,7 +41,7 @@ const StockshipAdminLayout = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth(); // Legacy support
   const { getAuth, logout: logoutMulti } = useMultiAuth();
-  const { t, language, toggleLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   
   // Get admin user from MultiAuthContext
   const adminAuth = getAuth('admin');
@@ -58,28 +56,39 @@ const StockshipAdminLayout = ({ children }) => {
     document.documentElement.classList.add('light');
   }, []);
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/admin/dashboard" },
-    { icon: Briefcase, label: t('mediation.employees.title'), path: "/stockship/admin/employees" },
-    { icon: Store, label: t('mediation.traders.title'), path: "/stockship/admin/traders" },
-    { icon: FolderTree, label: t('sidebar.categories') || 'Categories', path: "/stockship/admin/categories" },
-    { icon: ImageIcon, label: t('sidebar.sliders') || 'Sliders', path: "/stockship/admin/sliders" },
-    { icon: Video, label: t('sidebar.videoAds') || 'Video Ads', path: "/stockship/admin/video-ads" },
-    { icon: Users, label: t('admin.users.users'), path: "/stockship/admin/users" },
-    { icon: UserCog, label: t('mediation.admin.clientProfileRequest.nav') || 'Client profile requests', path: "/stockship/admin/client-profile-requests" },
-    { icon: FileText, label: t('mediation.admin.traderUpdateRequests.nav') || 'Trader update requests', path: "/stockship/admin/trader-update-requests" },
-    { icon: Gift, label: t('mediation.offers.title'), path: "/stockship/admin/offers" },
-    { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/admin/deals" },
-    { icon: Truck, label: t('sidebar.shippingCompanies') || 'Shipping Companies', path: "/stockship/admin/shipping-companies" },
-    { icon: MapPin, label: t('sidebar.shippingTracking') || 'Shipping Tracking', path: "/stockship/admin/shipping-tracking" },
-    { icon: CreditCard, label: t('sidebar.wallet'), path: "/stockship/admin/payments" },
-    { icon: MessageSquare, label: t('sidebar.support'), path: "/stockship/admin/support-tickets" },
-    { icon: Download, label: t('sidebar.reports'), path: "/stockship/admin/reports" },
-    { icon: FileText, label: t('sidebar.activityLogs') || 'Activity Logs', path: "/stockship/admin/activity-logs" },
-    { icon: BarChart3, label: t('sidebar.analytics'), path: "/stockship/admin/analytics" },
-    { icon: Shield, label: t('mediation.roles.title'), path: "/stockship/admin/roles-permissions" },
-    { icon: Settings, label: t('common.settings'), path: "/stockship/admin/settings" },
-  ];
+  const menuItems = useMemo(
+    () => [
+      { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/admin/dashboard" },
+      { icon: Briefcase, label: t('mediation.employees.title'), path: "/stockship/admin/employees" },
+      { icon: Store, label: t('mediation.traders.title'), path: "/stockship/admin/traders" },
+      { icon: FolderTree, label: t('sidebar.categories'), path: "/stockship/admin/categories" },
+      { icon: ImageIcon, label: t('sidebar.sliders'), path: "/stockship/admin/sliders" },
+      { icon: Video, label: t('sidebar.videoAds'), path: "/stockship/admin/video-ads" },
+      { icon: Users, label: t('admin.users.users'), path: "/stockship/admin/users" },
+      { icon: UserCog, label: t('mediation.admin.clientProfileRequest.nav'), path: "/stockship/admin/client-profile-requests" },
+      { icon: UserCircle, label: t('mediation.admin.employeeProfileRequest.nav'), path: "/stockship/admin/employee-profile-requests" },
+      { icon: FileText, label: t('mediation.admin.traderUpdateRequests.nav'), path: "/stockship/admin/trader-update-requests" },
+      { icon: Gift, label: t('mediation.offers.title'), path: "/stockship/admin/offers" },
+      { icon: ShoppingCart, label: t('mediation.deals.title'), path: "/stockship/admin/deals" },
+      { icon: Truck, label: t('sidebar.shippingCompanies'), path: "/stockship/admin/shipping-companies" },
+      { icon: MapPin, label: t('sidebar.shippingTracking'), path: "/stockship/admin/shipping-tracking" },
+      { icon: CreditCard, label: t('sidebar.wallet'), path: "/stockship/admin/payments" },
+      { icon: MessageSquare, label: t('sidebar.support'), path: "/stockship/admin/support-tickets" },
+      { icon: Download, label: t('sidebar.reports'), path: "/stockship/admin/reports" },
+      { icon: FileText, label: t('sidebar.activityLogs'), path: "/stockship/admin/activity-logs" },
+      { icon: BarChart3, label: t('sidebar.analytics'), path: "/stockship/admin/analytics" },
+      { icon: Shield, label: t('mediation.roles.title'), path: "/stockship/admin/roles-permissions" },
+      { icon: Settings, label: t('common.settings'), path: "/stockship/admin/settings" },
+    ],
+    [t]
+  );
+
+  const currentNavLabel = useMemo(() => {
+    const path = location.pathname;
+    const sorted = [...menuItems].sort((a, b) => b.path.length - a.path.length);
+    const item = sorted.find((i) => path === i.path || path.startsWith(`${i.path}/`));
+    return item?.label ?? t('sidebar.dashboard');
+  }, [location.pathname, menuItems, t]);
 
   const handleLogout = () => {
     logoutMulti('admin');
@@ -114,7 +123,7 @@ const StockshipAdminLayout = ({ children }) => {
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className={`p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white ${isRTL ? 'order-1' : ''}`}
-            aria-label="Toggle sidebar"
+            aria-label={t('sidebar.toggleSidebar')}
           >
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -124,7 +133,8 @@ const StockshipAdminLayout = ({ children }) => {
         <nav className="flex-1 overflow-y-auto p-3 space-y-1" dir={isRTL ? 'rtl' : 'ltr'}>
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
             return (
               <Link
                 key={item.path}
@@ -152,7 +162,7 @@ const StockshipAdminLayout = ({ children }) => {
             {sidebarOpen && (
               <div className={`flex-1 min-w-0 ${isRTL ? 'order-1 text-right' : 'text-left'}`}>
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {adminUser?.name || t('common.admin') || 'Admin'}
+                  {adminUser?.name || t('common.admin')}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {adminUser?.email || ''}
@@ -184,12 +194,12 @@ const StockshipAdminLayout = ({ children }) => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`md:hidden p-2 rounded-lg hover:bg-gray-100/60 text-gray-600 ${isRTL ? 'order-2' : ''}`}
-              aria-label="Toggle menu"
+              aria-label={t('sidebar.toggleMenu')}
             >
               <Menu size={20} />
             </button>
             <h2 className={`text-base font-semibold text-gray-900 hidden sm:block ${isRTL ? 'order-1 text-right' : 'text-left'}`}>
-              {menuItems.find(item => item.path === location.pathname)?.label || t('sidebar.dashboard')}
+              {currentNavLabel}
             </h2>
           </div>
 

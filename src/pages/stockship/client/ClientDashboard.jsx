@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/lib/api";
@@ -14,6 +14,16 @@ export default function ClientDashboard() {
   const { t, isRTL } = useLanguage();
   const token = getActiveToken('client');
   const navigate = useNavigate();
+
+  const offerStatusLabel = useCallback(
+    (status) => {
+      if (!status) return "";
+      const path = `mediation.offers.offerStatus.${status}`;
+      const out = t(path);
+      return out === path ? String(status) : out;
+    },
+    [t]
+  );
 
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +44,7 @@ export default function ClientDashboard() {
       setOffers(response.data?.data || []);
     } catch (error) {
       console.error("Error fetching offers:", error);
-      toast.error(t('client.loadFailed') || "Failed to load marketplace offers");
+      toast.error(t('client.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -50,8 +60,8 @@ export default function ClientDashboard() {
   return (
     <div className="p-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('client.marketplace') || 'Marketplace'}</h1>
-        <p className="text-muted-foreground">{t('client.marketplaceDesc') || 'Explore available offers and make deals'}</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('client.marketplace')}</h1>
+        <p className="text-muted-foreground">{t('client.marketplaceDesc')}</p>
       </div>
 
       {loading ? (
@@ -63,8 +73,8 @@ export default function ClientDashboard() {
            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <ShoppingBag className="w-8 h-8 text-gray-400" />
            </div>
-           <h3 className="text-lg font-medium text-gray-900">{t('client.noOffers') || 'No offers available'}</h3>
-           <p className="text-gray-500">{t('client.checkLater') || 'Check back later for new deals'}</p>
+           <h3 className="text-lg font-medium text-gray-900">{t('client.noOffers')}</h3>
+           <p className="text-gray-500">{t('client.checkLater')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -77,18 +87,18 @@ export default function ClientDashboard() {
                     <CardDescription className="line-clamp-2 mt-1">{offer.description}</CardDescription>
                   </div>
                   <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-                     {offer.status}
+                     {offerStatusLabel(offer.status)}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
                  <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex justify-between">
-                       <span>{t('common.items') || 'Items'}:</span>
+                       <span>{t('common.items')}:</span>
                        <span className="font-medium text-gray-900">{offer.items?.length || 0}</span>
                     </div>
                     <div className="flex justify-between">
-                       <span>{t('common.totalCartons') || 'Total Cartons'}:</span>
+                       <span>{t('common.totalCartons')}:</span>
                        <span className="font-medium text-gray-900">{offer.totalCartons}</span>
                     </div>
                     {/* Add more details like price range if available */}
@@ -96,7 +106,7 @@ export default function ClientDashboard() {
               </CardContent>
               <CardFooter className="pt-2">
                  <Button className="w-full" onClick={() => handleMakeDeal(offer.id)}>
-                    {t('client.makeDeal') || 'View & Make Deal'}
+                    {t('client.makeDeal')}
                     <ArrowRight className={`w-4 h-4 ${isRTL ? 'mr-2 rotate-180' : 'ml-2'}`} />
                  </Button>
               </CardFooter>

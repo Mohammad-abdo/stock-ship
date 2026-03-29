@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMultiAuth } from "@/contexts/MultiAuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,8 +18,6 @@ import {
   X,
   Building2,
   Plus,
-  Globe,
-  Bell,
   MessageSquare,
 } from "lucide-react";
 
@@ -27,7 +25,7 @@ export default function StockshipTraderLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { getAuth, logout } = useMultiAuth();
-  const { t, language, toggleLanguage, isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { user } = getAuth('trader');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,15 +41,25 @@ export default function StockshipTraderLayout({ children }) {
     navigate('/trader/login');
   };
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: t('sidebar.dashboard') || "Dashboard", path: "/stockship/trader/dashboard" },
-    { icon: Package, label: t('mediation.trader.myOffers') || "My Offers", path: "/stockship/trader/offers" },
-    { icon: Plus, label: t('mediation.trader.createOffer') || "Create Offer", path: "/stockship/trader/offers/create" },
-    { icon: FileText, label: t('mediation.deals.title') || "Deals", path: "/stockship/trader/deals" },
-    { icon: DollarSign, label: t('mediation.payments.title') || "Payments", path: "/stockship/trader/payments" },
-    { icon: MessageSquare, label: t('mediation.support.tickets') || "Support Tickets", path: "/stockship/trader/support-tickets" },
-    { icon: Settings, label: t('common.settings') || "Settings", path: "/stockship/trader/settings" },
-  ];
+  const menuItems = useMemo(
+    () => [
+      { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/stockship/trader/dashboard" },
+      { icon: Package, label: t('mediation.trader.myOffers'), path: "/stockship/trader/offers" },
+      { icon: Plus, label: t('mediation.trader.createOffer'), path: "/stockship/trader/offers/create" },
+      { icon: FileText, label: t('mediation.deals.title'), path: "/stockship/trader/deals" },
+      { icon: DollarSign, label: t('mediation.payments.title'), path: "/stockship/trader/payments" },
+      { icon: MessageSquare, label: t('mediation.support.tickets'), path: "/stockship/trader/support-tickets" },
+      { icon: Settings, label: t('common.settings'), path: "/stockship/trader/settings" },
+    ],
+    [t]
+  );
+
+  const currentNavLabel = useMemo(() => {
+    const path = location.pathname;
+    const sorted = [...menuItems].sort((a, b) => b.path.length - a.path.length);
+    const item = sorted.find((i) => path === i.path || path.startsWith(`${i.path}/`));
+    return item?.label ?? t('mediation.trader.portal');
+  }, [location.pathname, menuItems, t]);
 
   return (
     <div 
@@ -76,12 +84,12 @@ export default function StockshipTraderLayout({ children }) {
         <div className={`h-16 flex items-center justify-between px-4 border-b border-white/20 ${isRTL ? 'flex-row-reverse' : ''}`} style={{ backgroundColor: '#194386' }}>
           <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
             <AppLogo className="items-start" imgClassName="max-h-10" light />
-            <p className="text-xs text-white/80 mt-0.5">{t('mediation.trader.portal') || 'Trader Portal'}</p>
+            <p className="text-xs text-white/80 mt-0.5">{t('mediation.trader.portal')}</p>
           </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="lg:hidden p-1.5 rounded-lg hover:bg-white/20 text-white"
-            aria-label="Close menu"
+            aria-label={t('sidebar.closeMenu')}
           >
             <X size={18} />
           </button>
@@ -94,7 +102,7 @@ export default function StockshipTraderLayout({ children }) {
               <Building2 className="w-5 h-5 text-gray-600" />
             </div>
             <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || t('mediation.trader.trader') || 'Trader'}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || t('mediation.trader.guestName')}</p>
               <p className="text-xs text-gray-500 truncate">
                 {user?.traderCode || 'TRD-0000'}
               </p>
@@ -111,7 +119,8 @@ export default function StockshipTraderLayout({ children }) {
         <nav className="flex-1 overflow-y-auto p-3 space-y-1" dir={isRTL ? 'rtl' : 'ltr'}>
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
             return (
               <Link
                 key={item.path}
@@ -137,7 +146,7 @@ export default function StockshipTraderLayout({ children }) {
             className={`flex items-center ${isRTL ? 'flex-row-reverse justify-end' : 'flex-row'} gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100/60 text-gray-600 hover:text-gray-900 w-full transition-colors text-sm`}
           >
             <LogOut className={`w-5 h-5 shrink-0 ${isRTL ? 'order-2' : ''}`} />
-            <span className={`font-medium ${isRTL ? 'order-1 text-right' : 'text-left'}`}>{t('common.logout') || 'Logout'}</span>
+            <span className={`font-medium ${isRTL ? 'order-1 text-right' : 'text-left'}`}>{t('common.logout')}</span>
           </button>
         </div>
       </aside>
@@ -169,7 +178,7 @@ export default function StockshipTraderLayout({ children }) {
               <Menu size={20} />
             </button>
             <h1 className={`text-base font-semibold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {menuItems.find(item => item.path === location.pathname)?.label || t('mediation.trader.portal') || 'Trader Portal'}
+              {currentNavLabel}
             </h1>
           </div>
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>

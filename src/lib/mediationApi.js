@@ -262,6 +262,26 @@ export const employeeApi = {
   },
   cancelClientProfileRequestDraft: (id) => {
     return api.delete(`${BASE_URL}/employees/client-profile-requests/${id}`);
+  },
+
+  // Own profile update requests (employee → admin approval)
+  listEmployeeProfileRequests: (params = {}) => {
+    return api.get(`${BASE_URL}/employees/profile-update-requests`, { params });
+  },
+  createEmployeeProfileRequest: (data) => {
+    return api.post(`${BASE_URL}/employees/profile-update-requests`, data);
+  },
+  getEmployeeProfileRequestById: (id) => {
+    return api.get(`${BASE_URL}/employees/profile-update-requests/${id}`);
+  },
+  updateEmployeeProfileRequestDraft: (id, data) => {
+    return api.put(`${BASE_URL}/employees/profile-update-requests/${id}`, data);
+  },
+  submitEmployeeProfileRequest: (id) => {
+    return api.post(`${BASE_URL}/employees/profile-update-requests/${id}/submit`);
+  },
+  cancelEmployeeProfileRequestDraft: (id) => {
+    return api.delete(`${BASE_URL}/employees/profile-update-requests/${id}`);
   }
 };
 

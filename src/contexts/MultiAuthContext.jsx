@@ -327,6 +327,43 @@ export const MultiAuthProvider = ({ children }) => {
     return roles;
   }, [isLoggedIn]);
 
+  /** Merge server fields into stored employee user (sidebar, localStorage). */
+  const mergeEmployeeUser = useCallback((patch) => {
+    if (!patch || typeof patch !== 'object') return;
+    setAuths((prev) => {
+      const cur = prev.employee?.user;
+      if (!cur?.id && !patch.id) return prev;
+      const nextUser = {
+        ...cur,
+        ...patch,
+        userType: patch.userType || cur?.userType || 'EMPLOYEE'
+      };
+      localStorage.setItem('employee_user', JSON.stringify(nextUser));
+      return {
+        ...prev,
+        employee: {
+          ...prev.employee,
+          user: nextUser
+        }
+      };
+    });
+  }, []);
+
+  /** Refetch GET /auth/me as employee and sync storage (WebSocket fallback). */
+  const refreshEmployeeSession = useCallback(async () => {
+    const tok = localStorage.getItem('employee_token');
+    if (!tok) return;
+    localStorage.setItem('active_role', 'employee');
+    try {
+      const { authApi } = await import('@/lib/stockshipApi');
+      const res = await authApi.me();
+      const data = res.data?.data ?? res.data;
+      if (data?.id) mergeEmployeeUser(data);
+    } catch (e) {
+      console.warn('refreshEmployeeSession', e);
+    }
+  }, [mergeEmployeeUser]);
+
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
     auths,
@@ -344,8 +381,10 @@ export const MultiAuthProvider = ({ children }) => {
     isVendor,
     isTrader,
     isClient,
-    getActiveRoles
-  }), [auths, loading, activeRole, isAdmin, isModerator, isEmployee, isVendor, isTrader, isClient, getActiveRoles, getAuth, getActiveToken, isLoggedIn, login, logout, setActiveRole]);
+    getActiveRoles,
+    mergeEmployeeUser,
+    refreshEmployeeSession
+  }), [auths, loading, activeRole, isAdmin, isModerator, isEmployee, isVendor, isTrader, isClient, getActiveRoles, getAuth, getActiveToken, isLoggedIn, login, logout, setActiveRole, mergeEmployeeUser, refreshEmployeeSession]);
 
   return (
     <MultiAuthContext.Provider value={contextValue}>
