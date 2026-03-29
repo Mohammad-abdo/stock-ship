@@ -58,6 +58,59 @@ const getImageUrl = (imgUrl) => {
   return `${API_URL}/uploads/${imgUrl}`;
 };
 
+/** Align with API parseStoredOfferItemImages: JSON array, plain URL string, or { url } entries */
+const normalizeItemImageList = (raw) => {
+  if (raw == null) return [];
+  let list = [];
+  if (Array.isArray(raw)) {
+    list = raw
+      .map((x) => {
+        if (typeof x === 'string') return x.trim();
+        if (x && typeof x === 'object' && typeof x.url === 'string') return x.url.trim();
+        return '';
+      })
+      .filter(Boolean);
+  } else if (typeof raw === 'string') {
+    const t = raw.trim();
+    if (!t) return [];
+    try {
+      const parsed = JSON.parse(t);
+      if (Array.isArray(parsed)) {
+        list = parsed
+          .map((x) => {
+            if (typeof x === 'string') return x.trim();
+            if (x && typeof x === 'object' && typeof x.url === 'string') return x.url.trim();
+            return '';
+          })
+          .filter(Boolean);
+      } else if (typeof parsed === 'string' && parsed.trim()) {
+        list = [parsed.trim()];
+      }
+    } catch {
+      list = [t];
+    }
+  } else {
+    return [];
+  }
+
+  const invalidExact = ['الصورة', '图片', 'NO IMAGE', 'IMAGE', 'NO', 'N/A', 'null', 'undefined'];
+  const extRe = /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)$/i;
+  return list.filter((url) => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return false;
+    const lower = trimmedUrl.toLowerCase();
+    if (invalidExact.some((text) => lower === text.toLowerCase())) return false;
+    return (
+      /^https?:\/\//i.test(trimmedUrl) ||
+      /^\/uploads\//i.test(trimmedUrl) ||
+      /^uploads\//i.test(trimmedUrl) ||
+      /^data:image/i.test(trimmedUrl) ||
+      extRe.test(trimmedUrl)
+    );
+  });
+};
+
 const EmployeeViewOffer = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -125,44 +178,10 @@ const EmployeeViewOffer = () => {
         }
       }
       
-      // Parse images for each item
+      // Normalize item images (API may return array; keep client-side parity with DB edge cases)
       if (data.items && Array.isArray(data.items)) {
-        data.items = data.items.map(item => {
-          if (item.images && typeof item.images === 'string') {
-            try {
-              item.images = JSON.parse(item.images);
-            } catch (e) {
-              item.images = [];
-            }
-          }
-          
-          // Filter out invalid image URLs
-          if (item.images && Array.isArray(item.images)) {
-            item.images = item.images.filter(imgUrl => {
-              if (!imgUrl || typeof imgUrl !== 'string') return false;
-              
-              const trimmedUrl = imgUrl.trim();
-              if (!trimmedUrl) return false;
-              
-              const invalidTexts = ['الصورة', '图片', 'NO IMAGE', 'IMAGE', 'NO', 'N/A', 'null', 'undefined'];
-              const lowerImgUrl = trimmedUrl.toLowerCase();
-              
-              if (invalidTexts.some(text => lowerImgUrl === text.toLowerCase() || lowerImgUrl.includes(text.toLowerCase()))) {
-                return false;
-              }
-              
-              const validPatterns = [
-                /^https?:\/\//i,
-                /^\/uploads\//i,
-                /^uploads\//i,
-                /^data:image/i,
-                /\.(jpg|jpeg|png|gif|webp|svg)$/i
-              ];
-              
-              return validPatterns.some(pattern => pattern.test(trimmedUrl));
-            });
-          }
-          
+        data.items = data.items.map((item) => {
+          item.images = normalizeItemImageList(item.images);
           return item;
         });
       }
@@ -739,34 +758,9 @@ const EmployeeViewOffer = () => {
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   {offer.items.map((item, index) => {
-                    let itemImages = Array.isArray(item.images) ? item.images : (item.image ? [item.image] : []);
-                    
-                    itemImages = itemImages.filter(imgUrl => {
-                      if (!imgUrl || typeof imgUrl !== 'string') return false;
-                      const trimmedUrl = imgUrl.trim();
-                      
-                      // 1. If it looks like a valid URL/Path, accept it immediately (PRIORITY)
-                      const validPatterns = [
-                        /^https?:\/\//i,
-                        /^\/uploads\//i,
-                        /^uploads\//i,
-                        /^data:image/i
-                      ];
-                      if (validPatterns.some(pattern => pattern.test(trimmedUrl))) {
-                        return true;
-                      }
-                      
-                      // 2. Remove specific invalid text values (Exact match only)
-                      const invalidTexts = ['الصورة', '图片', 'NO IMAGE', 'IMAGE', 'NO', 'N/A', 'null', 'undefined'];
-                      const lowerImgUrl = trimmedUrl.toLowerCase();
-                      
-                      if (invalidTexts.some(text => lowerImgUrl === text.toLowerCase())) {
-                        return false;
-                      }
-                      
-                      // 3. Fallback: Check for file extension
-                      return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(trimmedUrl);
-                    });
+                    const itemImages = normalizeItemImageList(
+                      item.images ?? (item.image ? [item.image] : [])
+                    );
 
                     return (
                       <div key={item.id || index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">

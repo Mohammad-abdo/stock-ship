@@ -58,8 +58,11 @@ api.interceptors.request.use(
       } else if (path.includes('/clients/') || path.includes('/client')) {
         token = getTokenForRole('client');
       } else if (path.includes('/offers')) {
-        // For /offers routes, try trader first (common case), then client
-        token = getTokenForRole('trader') || getTokenForRole('client');
+        // GET /offers/:id is used by employee, trader, and client; prefer employee when multi-session
+        token =
+          getTokenForRole('employee') ||
+          getTokenForRole('trader') ||
+          getTokenForRole('client');
       } else if (path.includes('/deals')) {
         // For /deals routes, try all roles (can be accessed by trader, client, employee)
         token = getTokenForRole('trader') || getTokenForRole('client') || getTokenForRole('employee');
